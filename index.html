@@ -201,20 +201,13 @@ html, body {
   background: var(--inset-2);
 }
 .sb-item.active {
-  background: var(--accent-bg);
+  background: rgba(0, 122, 255, 0.14);
   color: var(--accent-text);
   font-weight: 500;
-  position: relative;
+  box-shadow: inset 2.5px 0 0 var(--accent);
 }
-.sb-item.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 4px;
-  bottom: 4px;
-  width: 2.5px;
-  border-radius: 0 2px 2px 0;
-  background: var(--accent);
+[data-theme="dark"] .sb-item.active {
+  background: rgba(10, 132, 255, 0.22);
 }
 .sb-item.active:hover {
   background: var(--accent-bg);
@@ -1233,8 +1226,15 @@ html, body {
 .cat-row:hover { background: var(--inset); }
 .cat-row.expanded { background: var(--inset); }
 .cat-icon {
-  font-size: 16px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cat-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
 }
 .cat-name-block { min-width: 0; }
 .cat-name {
@@ -3480,7 +3480,7 @@ function renderCategoryTable(f) {
 
     html += `
       <div class="cat-row ${isExpanded ? 'expanded' : ''}" onclick="toggleCat(${idx})">
-        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-icon"><div class="cat-color-dot" style="background: var(--cogs-${idx + 1});"></div></div>
         <div class="cat-name-block">
           <div class="cat-name">${cat.name}</div>
           <div class="cat-status">${cat.status}</div>
