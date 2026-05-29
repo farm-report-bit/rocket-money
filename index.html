@@ -1,0 +1,3591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gold Leaf Farming · 2026</title>
+<style>
+/* =============================================================
+   APPLE MAIL / FINANCE SHELL — LIGHT + DARK
+   Sidebar nav, edge-to-edge content, no cards, hairlines only
+   ============================================================= */
+
+:root {
+  --bg:           #FFFFFF;
+  --sidebar:      #FBFBFD;
+  --inset:        #F5F5F7;
+  --inset-2:      #EBEBF0;
+  --hairline:     rgba(60, 60, 67, 0.12);
+  --hairline-soft:rgba(60, 60, 67, 0.06);
+  --divider:      rgba(60, 60, 67, 0.08);
+
+  --text:         #1D1D1F;
+  --text-2:       #3A3A3C;
+  --text-dim:     #6E6E73;
+  --text-mute:    #86868B;
+  --text-faint:   #AEAEB2;
+
+  --accent:       #007AFF;
+  --accent-bg:    rgba(0, 122, 255, 0.10);
+  --accent-text:  #007AFF;
+
+  --good:         #30D158;
+  --good-soft:    rgba(48, 209, 88, 0.14);
+  --bad:          #FF3B30;
+  --bad-soft:     rgba(255, 59, 48, 0.12);
+
+  --segment-bg:   rgba(120, 120, 128, 0.12);
+  --segment-fg:   #FFFFFF;
+  --segment-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  --cogs-1: #007AFF;
+  --cogs-2: #5AC8FA;
+  --cogs-3: #34AADC;
+  --cogs-4: #1D1D1F;
+  --cogs-5: #48484A;
+  --cogs-6: #6E6E73;
+  --cogs-7: #86868B;
+  --cogs-8: #AEAEB2;
+  --cogs-9: #C7C7CC;
+
+  --wf-subtotal:  #1D1D1F;
+  --wf-cost-fill: rgba(255, 59, 48, 0.30);
+  --wf-cost-text: #FF3B30;
+
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.10), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  --shadow-cmdk:    0 20px 60px rgba(0, 0, 0, 0.20), 0 0 0 0.5px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg:           #1C1C1E;
+  --sidebar:      #2C2C2E;
+  --inset:        #2C2C2E;
+  --inset-2:      #3A3A3C;
+  --hairline:     rgba(255, 255, 255, 0.10);
+  --hairline-soft:rgba(255, 255, 255, 0.06);
+  --divider:      rgba(255, 255, 255, 0.08);
+
+  --text:         #FFFFFF;
+  --text-2:       #E5E5EA;
+  --text-dim:     #C7C7CC;
+  --text-mute:    #8E8E93;
+  --text-faint:   #6E6E73;
+
+  --accent:       #0A84FF;
+  --accent-bg:    rgba(10, 132, 255, 0.18);
+  --accent-text:  #0A84FF;
+
+  --good:         #30D158;
+  --good-soft:    rgba(48, 209, 88, 0.18);
+  --bad:          #FF453A;
+  --bad-soft:     rgba(255, 69, 58, 0.16);
+
+  --segment-bg:   rgba(120, 120, 128, 0.24);
+  --segment-fg:   #48484A;
+  --segment-shadow: none;
+
+  --cogs-1: #0A84FF;
+  --cogs-2: #64D2FF;
+  --cogs-3: #5AC8FA;
+  --cogs-4: #FFFFFF;
+  --cogs-5: #AEAEB2;
+  --cogs-6: #8E8E93;
+  --cogs-7: #6E6E73;
+  --cogs-8: #48484A;
+  --cogs-9: #3A3A3C;
+
+  --wf-subtotal:  #FFFFFF;
+  --wf-cost-fill: rgba(255, 69, 58, 0.35);
+  --wf-cost-text: #FF453A;
+
+  --shadow-popover: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(255, 255, 255, 0.06);
+  --shadow-cmdk:    0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+               "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.num, .tabular {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+/* ========== SHELL ========== */
+.shell {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  background: var(--sidebar);
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 0.5px solid var(--hairline);
+  padding: 16px 10px 12px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 8px 18px;
+}
+.brand-logo {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  background: var(--text);
+  color: var(--bg);
+  display: grid; place-items: center;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+.brand-text-top {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+  line-height: 1.1;
+  color: var(--text);
+}
+.brand-text-bottom {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.sb-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  padding: 4px 8px 6px;
+  text-transform: uppercase;
+}
+.sb-label:not(:first-of-type) {
+  padding-top: 18px;
+}
+
+.sb-item {
+  padding: 6px 8px;
+  font-size: 12.5px;
+  color: var(--text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 1px;
+  transition: background 0.12s;
+  user-select: none;
+}
+.sb-item:hover {
+  background: var(--inset-2);
+}
+.sb-item.active {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+  font-weight: 500;
+}
+.sb-item.active:hover {
+  background: var(--accent-bg);
+}
+.sb-item-meta {
+  font-size: 10.5px;
+  color: var(--text-mute);
+}
+.sb-item.active .sb-item-meta {
+  color: var(--accent-text);
+  opacity: 0.7;
+}
+.sb-item.sub {
+  padding-left: 18px;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.sb-empty {
+  padding: 4px 8px;
+  font-size: 11.5px;
+  color: var(--text-mute);
+  line-height: 1.4;
+}
+
+.sb-cmdk {
+  margin-top: auto;
+  padding: 10px 8px 4px;
+  font-size: 11px;
+  color: var(--text-mute);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 0.5px solid var(--hairline);
+  margin-bottom: 0;
+}
+.sb-cmdk-key {
+  display: inline-flex;
+  gap: 2px;
+}
+.sb-cmdk-key kbd {
+  background: var(--inset-2);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-size: 10px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text-dim);
+  font-weight: 500;
+  min-width: 14px;
+  text-align: center;
+}
+
+/* ========== MAIN ========== */
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* ========== TOOLBAR ========== */
+.toolbar {
+  padding: 10px 20px;
+  border-bottom: 0.5px solid var(--hairline);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.nav-btns {
+  display: flex;
+  gap: 4px;
+}
+.nav-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  color: var(--text-mute);
+  font-size: 12px;
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: background 0.12s, color 0.12s;
+}
+.nav-btn:hover:not(:disabled) {
+  background: var(--inset-2);
+  color: var(--text);
+}
+.nav-btn:disabled {
+  color: var(--text-faint);
+  cursor: default;
+}
+.breadcrumb {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.breadcrumb .crumb-link {
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.breadcrumb .crumb-link:hover { color: var(--accent); }
+.breadcrumb .sep { color: var(--text-faint); }
+.breadcrumb .current { color: var(--text); font-weight: 500; }
+
+.toolbar-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.toolbar-meta {
+  font-size: 11.5px;
+  color: var(--text-mute);
+  margin-right: 8px;
+}
+
+.tool-btn {
+  width: 28px;
+  height: 22px;
+  border-radius: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--text-dim);
+  transition: background 0.12s, color 0.12s;
+  position: relative;
+}
+.tool-btn:hover {
+  background: var(--inset-2);
+  color: var(--text);
+}
+.tool-btn svg {
+  width: 14px;
+  height: 14px;
+}
+.tool-btn.has-menu:hover .tool-menu {
+  display: block;
+}
+.tool-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg);
+  border-radius: 8px;
+  box-shadow: var(--shadow-popover);
+  min-width: 160px;
+  padding: 4px;
+  z-index: 20;
+}
+.tool-menu-item {
+  padding: 7px 12px;
+  font-size: 12.5px;
+  color: var(--text);
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  text-align: left;
+}
+.tool-menu-item:hover {
+  background: var(--inset-2);
+}
+.tool-menu-item kbd {
+  font-size: 10px;
+  color: var(--text-mute);
+  font-family: inherit;
+}
+.tool-menu-divider {
+  height: 0.5px;
+  background: var(--hairline);
+  margin: 4px 0;
+}
+
+.theme-toggle .icon-sun { display: none; }
+.theme-toggle .icon-moon { display: block; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+[data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+/* Share toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 200;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.2);
+}
+.toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ========== CONTENT SCROLL AREA ========== */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  position: relative;
+}
+.content::-webkit-scrollbar { width: 10px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb {
+  background: var(--hairline);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+.content::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ========== PAGE HEADER ========== */
+.page-header {
+  padding: 22px 28px 18px;
+}
+.eyebrow {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-mute);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.page-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--text);
+}
+.page-sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* ========== SEGMENTED CONTROL ========== */
+.segment {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--segment-bg);
+  border-radius: 7px;
+  padding: 2px;
+}
+.segment-btn {
+  padding: 5px 12px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: color 0.12s;
+}
+.segment-btn:hover {
+  color: var(--text);
+}
+.segment-btn.active {
+  background: var(--segment-fg);
+  color: var(--text);
+  box-shadow: var(--segment-shadow);
+}
+
+/* ========== KPI STRIP ========== */
+.kpi-strip {
+  padding: 0 28px 22px;
+}
+.kpi-strip-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 0.5px solid var(--hairline);
+  border-bottom: 0.5px solid var(--hairline);
+  padding: 16px 0;
+}
+.kpi {
+  padding-left: 18px;
+  border-left: 0.5px solid var(--divider);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kpi:first-child {
+  padding-left: 0;
+  border-left: none;
+}
+.kpi-label {
+  font-size: 10.5px;
+  color: var(--text-mute);
+}
+.kpi-value {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi-delta {
+  font-size: 10.5px;
+}
+.kpi-delta.good { color: var(--good); }
+.kpi-delta.bad  { color: var(--bad); }
+.kpi-delta.neutral { color: var(--text-mute); }
+
+/* ========== SECTION HEADERS ========== */
+.section {
+  padding: 0 28px 22px;
+}
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+  gap: 16px;
+}
+/* Sticky variant — used when section title should pin while scrolling */
+.section-head.sticky {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 5;
+  padding: 14px 0 10px;
+  margin: -14px 0 4px;
+  border-bottom: 0.5px solid transparent;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.section-head.sticky.stuck {
+  border-bottom-color: var(--hairline);
+}
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+  color: var(--text);
+}
+.section-sub {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+.section-aside {
+  font-size: 11px;
+  color: var(--text-mute);
+}
+.var-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ========== TWO COLUMN ========== */
+.two-col {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 36px;
+}
+@media (max-width: 1080px) {
+  .two-col { grid-template-columns: 1fr; gap: 28px; }
+}
+
+/* ========== WATERFALL ========== */
+#waterfall {
+  width: 100%;
+  height: 240px;
+  display: block;
+}
+.wf-bar {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.wf-bar:hover { opacity: 0.82; }
+.wf-label-text {
+  fill: var(--text-mute);
+  font-family: inherit;
+  font-size: 9px;
+}
+.wf-value-text {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* ========== DONUT ========== */
+.donut-col {
+  display: flex;
+  flex-direction: column;
+}
+.donut-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+#donut {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+.donut-slice {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.donut-slice:hover { opacity: 0.85; }
+.donut-slice.dim { opacity: 0.25; }
+.donut-center-label {
+  fill: var(--text-mute);
+  font-family: inherit;
+  font-size: 9px;
+  text-anchor: middle;
+}
+.donut-center-value {
+  fill: var(--text);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-anchor: middle;
+  letter-spacing: -0.014em;
+}
+.donut-legend {
+  flex: 1;
+  font-size: 11.5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0 24px;
+}
+.legend-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s;
+}
+.legend-row:hover {
+  background: var(--inset);
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.legend-row.active {
+  color: var(--accent);
+}
+.legend-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+}
+.legend-name {
+  color: var(--text-2);
+}
+.legend-row.active .legend-name { color: var(--accent); font-weight: 500; }
+.legend-val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* Inline donut drill-down panel */
+.donut-drill {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 0.5px solid var(--hairline);
+  display: none;
+}
+.donut-drill.active { display: block; }
+.donut-drill-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.donut-drill-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.011em;
+}
+.donut-drill-close {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: var(--inset-2);
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  transition: background 0.12s, color 0.12s;
+}
+.donut-drill-close:hover { background: var(--inset); color: var(--text); }
+.dd-row-head {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 60px;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--text-mute);
+  padding: 6px 0 6px;
+  border-bottom: 0.5px solid var(--hairline);
+  font-weight: 500;
+}
+.dd-row-head > *:not(:first-child) { text-align: right; }
+.dd-row {
+  display: grid;
+  grid-template-columns: 1fr 50px 50px 60px;
+  gap: 10px;
+  font-size: 11.5px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--hairline-soft);
+}
+.dd-row:last-child { border-bottom: none; }
+.dd-row .name { color: var(--text-2); }
+.dd-row .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.dd-row .n.good { color: var(--good); }
+.dd-row .n.bad  { color: var(--bad); }
+.dd-row .n.dim  { color: var(--text-mute); }
+
+/* ========== FUND-LEVEL YTD TREND ========== */
+.fund-trend-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 40px;
+  align-items: center;
+  padding-top: 8px;
+}
+.fund-trend-label {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-bottom: 6px;
+}
+.fund-trend-bignum {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.fund-trend-bignum .currency {
+  font-size: 0.5em;
+  vertical-align: 0.45em;
+  color: var(--text-mute);
+  font-weight: 500;
+  margin-right: 1px;
+}
+.fund-trend-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.fund-trend-sub strong { color: var(--text); font-weight: 500; }
+.fund-trend-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px 5px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.fund-trend-callout.bad  { background: var(--bad-soft);  color: var(--bad); }
+.fund-trend-callout.good { background: var(--good-soft); color: var(--good); }
+.fund-trend-note {
+  font-size: 10.5px;
+  color: var(--text-faint);
+  font-style: italic;
+  letter-spacing: 0;
+}
+.fund-trend-chart-wrap { position: relative; }
+#fundTrendChart {
+  width: 100%;
+  height: 200px;
+  display: block;
+}
+@media (max-width: 900px) {
+  .fund-trend-grid { grid-template-columns: 1fr; gap: 20px; }
+}
+
+/* ========== VARIANCE LIST ========== */
+.var-list {
+  border-top: 0.5px solid var(--hairline);
+}
+.var-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 90px;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--hairline-soft);
+  cursor: pointer;
+  transition: background 0.12s;
+  border-radius: 4px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.var-row:hover {
+  background: var(--inset);
+}
+.var-row.active {
+  background: var(--accent-bg);
+}
+.var-row.active .var-name {
+  color: var(--accent);
+}
+.var-row.dim {
+  opacity: 0.4;
+}
+.var-row:last-child { border-bottom: none; }
+
+/* ========== VARIANCE DRILL ========== */
+.var-drill {
+  margin-top: 14px;
+  padding: 14px 16px 16px;
+  background: var(--inset);
+  border-radius: 8px;
+  display: none;
+}
+.var-drill.active { display: block; }
+.var-drill-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.var-drill-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.011em;
+}
+.var-drill-close {
+  width: 22px; height: 22px;
+  border-radius: 5px;
+  background: var(--inset-2);
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  transition: background 0.12s, color 0.12s;
+}
+.var-drill-close:hover { background: var(--bg); color: var(--text); }
+.vd-row-head {
+  display: grid;
+  grid-template-columns: 1fr 60px 60px 70px;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--text-mute);
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--hairline);
+  font-weight: 500;
+}
+.vd-row-head > *:not(:first-child) { text-align: right; }
+.vd-row {
+  display: grid;
+  grid-template-columns: 1fr 60px 60px 70px;
+  gap: 12px;
+  font-size: 11.5px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid var(--hairline-soft);
+}
+.vd-row:last-child { border-bottom: none; }
+.vd-row .name { color: var(--text-2); }
+.vd-row .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--text); }
+.vd-row .n.good { color: var(--good); }
+.vd-row .n.bad  { color: var(--bad); }
+.vd-row .n.dim  { color: var(--text-mute); }
+
+.var-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+}
+.var-sub {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  margin-top: 1px;
+}
+.var-bar-track {
+  height: 4px;
+  background: var(--segment-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.var-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.var-bar-fill.good { background: var(--good); }
+.var-bar-fill.bad  { background: var(--bad); }
+.var-val {
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.var-val.good { color: var(--good); }
+.var-val.bad  { color: var(--bad); }
+
+/* ========== COMPARISON TABLE ========== */
+.matrix {
+  width: 100%;
+  border-collapse: collapse;
+}
+.matrix th {
+  text-align: right;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-mute);
+  padding: 10px 0 8px;
+  border-bottom: 0.5px solid var(--hairline);
+  cursor: pointer;
+  transition: color 0.12s;
+}
+.matrix th:hover:not(:first-child) { color: var(--accent); }
+.matrix th:first-child {
+  text-align: left;
+  cursor: default;
+}
+.matrix th:first-child:hover { color: var(--text-mute); }
+.matrix td {
+  font-size: 12px;
+  padding: 9px 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  border-bottom: 0.5px solid var(--hairline-soft);
+}
+.matrix td:first-child {
+  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: normal;
+}
+.matrix tr:last-child td { border-bottom: none; }
+.matrix tr:hover td { background: var(--inset); }
+.matrix .best   { color: var(--good); font-weight: 500; }
+.matrix .worst  { color: var(--bad);  font-weight: 500; }
+
+/* ========== FARM LIST VIEW ========== */
+.farm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+  border-top: 0.5px solid var(--hairline);
+  border-bottom: 0.5px solid var(--hairline);
+}
+.farm-row {
+  padding: 16px 18px;
+  border-right: 0.5px solid var(--hairline-soft);
+  border-bottom: 0.5px solid var(--hairline-soft);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.farm-row:hover { background: var(--inset); }
+.farm-row.disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.farm-row.disabled:hover { background: transparent; }
+.farm-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.farm-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.014em;
+  color: var(--text);
+}
+.farm-sub {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 1px;
+}
+.farm-arrow {
+  font-size: 13px;
+  color: var(--text-mute);
+}
+.farm-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+.farm-stat-label {
+  font-size: 10px;
+  color: var(--text-mute);
+  margin-bottom: 2px;
+}
+.farm-stat-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
+}
+.farm-stat-val.good { color: var(--good); }
+.farm-stat-val.bad  { color: var(--bad); }
+.farm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  padding: 2px 7px;
+  border-radius: 9999px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* ========== FARM DETAIL VIEW ========== */
+.spend-banner {
+  padding: 22px 28px 26px;
+  border-bottom: 0.5px solid var(--hairline);
+}
+.spend-banner-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 48px;
+  align-items: center;
+}
+.spend-eyebrow-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+}
+.spend-bignum-label {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-bottom: 8px;
+}
+.spend-bignum {
+  font-size: 64px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  color: var(--text);
+  margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.spend-bignum .currency {
+  font-size: 0.45em;
+  vertical-align: 0.5em;
+  color: var(--text-mute);
+  font-weight: 500;
+  margin-right: 2px;
+}
+.spend-subline {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 18px;
+}
+.spend-subline strong { color: var(--text); font-weight: 500; }
+.spend-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.spend-callout.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.spend-callout.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.spend-callout-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.spend-chart-wrap {
+  position: relative;
+}
+#spendChart {
+  width: 100%;
+  height: 220px;
+  display: block;
+}
+.chart-legend {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 10.5px;
+  color: var(--text-mute);
+}
+.chart-legend-left {
+  display: flex;
+  gap: 14px;
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.chart-legend-swatch {
+  width: 12px;
+  height: 2px;
+}
+.chart-legend-swatch.dashed {
+  height: 0;
+  border-top: 1.5px dashed currentColor;
+  opacity: 0.6;
+}
+.chart-legend-swatch.band {
+  width: 12px;
+  height: 8px;
+}
+
+.cat-select {
+  background: var(--inset);
+  border: 0.5px solid var(--hairline);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 26px 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%238E8E93' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  letter-spacing: -0.008em;
+}
+.cat-select:hover { background-color: var(--inset-2); }
+.cat-select:focus { border-color: var(--accent); }
+
+.cat-table {
+  border-top: 0.5px solid var(--hairline);
+}
+.cat-row {
+  display: grid;
+  grid-template-columns: 26px 1fr 110px 1fr 88px 88px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 28px;
+  border-bottom: 0.5px solid var(--hairline-soft);
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.cat-row:hover { background: var(--inset); }
+.cat-row.expanded { background: var(--inset); }
+.cat-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+.cat-name-block { min-width: 0; }
+.cat-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.008em;
+}
+.cat-status {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+.cat-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--inset-2);
+  color: var(--text-mute);
+}
+.cat-status-pill.good {
+  background: var(--good-soft);
+  color: var(--good);
+}
+.cat-status-pill.bad {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+.cat-status-pill::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.cat-numbers {
+  font-size: 12.5px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.cat-spent {
+  font-weight: 600;
+  color: var(--text);
+}
+.cat-of {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  margin-top: 1px;
+}
+.cat-progress {
+  height: 4px;
+  background: var(--segment-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.cat-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: var(--good);
+  transition: width 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.cat-progress-fill.over { background: var(--bad); }
+.cat-fyvar {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  text-align: right;
+}
+.cat-fyvar.over  { color: var(--bad); }
+.cat-fyvar.under { color: var(--good); }
+.cat-fyvar.flat  { color: var(--text-mute); }
+.cat-fyvar-label {
+  font-size: 10.5px;
+  color: var(--text-mute);
+  text-align: right;
+}
+
+.cat-items {
+  background: var(--inset);
+  border-bottom: 0.5px solid var(--hairline-soft);
+  padding: 4px 28px 14px;
+}
+.cat-items-grid {
+  display: grid;
+  grid-template-columns: 24px 1fr 70px 70px 70px 70px;
+  gap: 12px;
+  font-size: 11.5px;
+  align-items: center;
+}
+.cat-items-grid .h {
+  font-size: 10px;
+  color: var(--text-mute);
+  padding: 8px 0;
+  font-weight: 500;
+  border-bottom: 0.5px solid var(--hairline-soft);
+}
+.cat-items-grid .h.r { text-align: right; }
+.cat-items-grid .c {
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--hairline-soft);
+  font-variant-numeric: tabular-nums;
+}
+.cat-items-grid .c:nth-last-child(-n+6) { border-bottom: none; }
+.cat-items-grid .c.name { color: var(--text-2); }
+.cat-items-grid .c.r {
+  text-align: right;
+  color: var(--text);
+}
+.cat-items-grid .c.r.dim { color: var(--text-mute); }
+.cat-items-grid .c.r.good { color: var(--good); }
+.cat-items-grid .c.r.bad  { color: var(--bad); }
+.li-status-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  font-size: 9px;
+  display: grid;
+  place-items: center;
+  background: var(--inset-2);
+  color: var(--text-mute);
+}
+.li-status-dot.done { background: var(--good-soft); color: var(--good); }
+.li-status-dot.wip  { background: var(--bad-soft);  color: var(--bad); }
+
+.detail-meta-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+.detail-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.detail-meta-item strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.detail-meta-item .dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+/* ========== VIEWS ========== */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ========== TOOLTIP ========== */
+.tooltip {
+  position: fixed;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 11px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  box-shadow: var(--shadow-popover);
+  z-index: 100;
+  font-size: 11.5px;
+  min-width: 140px;
+}
+.tooltip.visible { opacity: 1; }
+.tt-title {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text);
+  margin-bottom: 4px;
+  letter-spacing: -0.011em;
+}
+.tt-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 1px 0;
+  font-variant-numeric: tabular-nums;
+}
+.tt-row span:last-child { color: var(--text); font-weight: 500; }
+.tt-row .good { color: var(--good); }
+.tt-row .bad  { color: var(--bad); }
+
+/* ========== CMD-K PALETTE ========== */
+.cmdk-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 150;
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 120px;
+}
+.cmdk-overlay.active { display: flex; }
+[data-theme="dark"] .cmdk-overlay { background: rgba(0, 0, 0, 0.5); }
+.cmdk-modal {
+  background: var(--bg);
+  border-radius: 12px;
+  width: 560px;
+  max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 240px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-cmdk);
+  overflow: hidden;
+}
+.cmdk-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 0.5px solid var(--hairline);
+}
+.cmdk-input-wrap svg {
+  width: 16px;
+  height: 16px;
+  color: var(--text-mute);
+  flex-shrink: 0;
+}
+.cmdk-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--text);
+  letter-spacing: -0.014em;
+}
+.cmdk-input::placeholder { color: var(--text-mute); }
+.cmdk-results {
+  overflow-y: auto;
+  padding: 6px;
+  flex: 1;
+}
+.cmdk-group-label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-mute);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 12px 6px;
+}
+.cmdk-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text);
+}
+.cmdk-item:hover, .cmdk-item.selected {
+  background: var(--accent-bg);
+  color: var(--accent-text);
+}
+.cmdk-item-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: var(--text-mute);
+  font-size: 13px;
+}
+.cmdk-item:hover .cmdk-item-icon,
+.cmdk-item.selected .cmdk-item-icon {
+  color: var(--accent-text);
+}
+.cmdk-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cmdk-item-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+.cmdk-item-sub {
+  font-size: 10.5px;
+  color: var(--text-mute);
+}
+.cmdk-item:hover .cmdk-item-sub,
+.cmdk-item.selected .cmdk-item-sub { color: var(--accent-text); opacity: 0.7; }
+.cmdk-empty {
+  padding: 24px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--text-mute);
+}
+
+/* ========== PRINT ========== */
+@media print {
+  html, body { height: auto; overflow: visible; background: #FFFFFF; color: #1D1D1F; }
+  .sidebar, .toolbar, .cmdk-overlay, .tooltip, .toast { display: none !important; }
+  .main, .content { overflow: visible; height: auto; }
+  .shell { display: block; }
+  .section-head.sticky { position: static; padding: 0; margin: 0 0 12px; }
+  .page-header, .section, .spend-banner { page-break-inside: avoid; }
+  .view { display: block !important; }
+  /* Force light palette for print regardless of current theme */
+  body[data-theme="dark"] {
+    --bg: #FFFFFF; --sidebar: #FFFFFF; --inset: #F5F5F7; --inset-2: #EBEBF0;
+    --hairline: rgba(60,60,67,0.20); --hairline-soft: rgba(60,60,67,0.10);
+    --text: #1D1D1F; --text-2: #3A3A3C; --text-dim: #6E6E73; --text-mute: #86868B;
+    --accent: #007AFF; --good: #30D158; --bad: #FF3B30;
+  }
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 800px) {
+  .sidebar { width: 60px; padding: 12px 6px; }
+  .sidebar .brand-text-top, .sidebar .brand-text-bottom,
+  .sidebar .sb-label, .sidebar .sb-item-meta, .sidebar .sb-cmdk { display: none; }
+  .sidebar .sb-item { justify-content: center; padding: 8px 4px; font-size: 11px; }
+  .kpi-strip-inner { grid-template-columns: 1fr 1fr; gap: 16px 0; }
+  .kpi { padding-left: 14px; }
+  .kpi:nth-child(3) { padding-left: 0; border-left: none; }
+  .spend-banner-grid { grid-template-columns: 1fr; gap: 24px; }
+  .spend-bignum { font-size: 48px; }
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Link copied</div>
+
+<!-- CMD-K PALETTE -->
+<div class="cmdk-overlay" id="cmdkOverlay" onclick="closeCmdk(event)">
+  <div class="cmdk-modal" onclick="event.stopPropagation()">
+    <div class="cmdk-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input class="cmdk-input" id="cmdkInput" type="text" placeholder="Jump to a fund, farm, or view…" />
+    </div>
+    <div class="cmdk-results" id="cmdkResults"></div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- ============= SIDEBAR ============= -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">G</div>
+      <div>
+        <div class="brand-text-top">Gold Leaf</div>
+        <div class="brand-text-bottom">2026 FvB</div>
+      </div>
+    </div>
+
+    <div class="sb-label">Funds</div>
+    <div id="sbFunds"></div>
+
+    <div class="sb-label" id="sbFarmsLabel">Farms · GLF OZ</div>
+    <div id="sbFarms"></div>
+
+    <div class="sb-cmdk" onclick="openCmdk()" style="cursor: pointer;">
+      <span>Quick find</span>
+      <span class="sb-cmdk-key"><kbd>⌘</kbd><kbd>K</kbd></span>
+    </div>
+  </aside>
+
+  <!-- ============= MAIN ============= -->
+  <main class="main">
+
+    <!-- ===== TOOLBAR ===== -->
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="nav-btns">
+          <button class="nav-btn" id="navBack" onclick="navBack()" disabled title="Back">←</button>
+          <button class="nav-btn" id="navForward" disabled title="Forward">→</button>
+        </div>
+        <div class="breadcrumb" id="breadcrumb">
+          <span class="current">GLF OZ</span>
+        </div>
+      </div>
+      <div class="toolbar-right">
+        <span class="toolbar-meta">As of Apr 2026</span>
+
+        <button class="tool-btn" onclick="openCmdk()" title="Quick find (⌘K)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+
+        <div class="tool-btn has-menu" title="Share / export">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+          <div class="tool-menu">
+            <div class="tool-menu-item" onclick="copyShareLink()">
+              <span>Copy share link</span>
+              <kbd>⌘⇧L</kbd>
+            </div>
+            <div class="tool-menu-item" onclick="window.print()">
+              <span>Export as PDF</span>
+              <kbd>⌘P</kbd>
+            </div>
+          </div>
+        </div>
+
+        <button class="tool-btn theme-toggle" onclick="toggleTheme()" title="Toggle appearance">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <line x1="12" y1="2" x2="12" y2="4"/>
+            <line x1="12" y1="20" x2="12" y2="22"/>
+            <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/>
+            <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
+            <line x1="2" y1="12" x2="4" y2="12"/>
+            <line x1="20" y1="12" x2="22" y2="12"/>
+            <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/>
+            <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== CONTENT ===== -->
+    <div class="content" id="contentScroll">
+
+      <!-- =========== FUND OVERVIEW VIEW =========== -->
+      <div id="fundView" class="view active">
+        <div class="page-header">
+          <div class="eyebrow">Fund overview</div>
+          <div class="page-title-row">
+            <div>
+              <div class="page-title" id="fvTitle">GLF OZ</div>
+              <div class="page-sub" id="fvSub"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="kpi-strip">
+          <div style="font-size: 10.5px; color: var(--text-mute); text-align: right; margin-bottom: -4px; padding-right: 2px;">$ per acre · forecast vs budget</div>
+          <div class="kpi-strip-inner" id="fvKpis"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-head sticky">
+            <div>
+              <div class="section-title">YTD spend trajectory</div>
+            </div>
+            <select class="cat-select" id="fundCatSelect" onchange="selectFundChartCategory(this.value)">
+              <option value="ALL">Total COGS</option>
+            </select>
+          </div>
+          <div class="fund-trend-grid">
+            <div class="fund-trend-summary">
+              <div class="fund-trend-label" id="ftLabel">Cumulative COGS spend</div>
+              <div class="fund-trend-bignum"><span class="currency">$</span><span id="ftBigNum">—</span></div>
+              <div class="fund-trend-sub">
+                <strong id="ftRemaining">—</strong> remaining of <strong id="ftFY">—</strong> full-year forecast
+              </div>
+              <div class="fund-trend-callout" id="ftCallout">
+                <span class="spend-callout-dot"></span>
+                <span id="ftCalloutText"></span>
+              </div>
+              <div class="fund-trend-note">April YTD and full-year endpoints are actuals · curve between is illustrative</div>
+            </div>
+            <div class="fund-trend-chart-wrap">
+              <svg id="fundTrendChart" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet"></svg>
+              <div class="chart-legend">
+                <div class="chart-legend-left">
+                  <span class="chart-legend-item"><span class="chart-legend-swatch" style="background: var(--accent);"></span>Forecast</span>
+                  <span class="chart-legend-item" style="color: var(--text-mute);"><span class="chart-legend-swatch dashed"></span>Budget</span>
+                  <span class="chart-legend-item"><span class="chart-legend-swatch band" style="background: var(--bad-soft);"></span>Variance</span>
+                </div>
+                <span>Actuals through Apr, forecast May–Dec</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head sticky">
+            <div>
+              <div class="section-title">Variance vs budget</div>
+              <div class="section-sub" id="varSubtitle">Year-to-date actual vs budget pace · per acre</div>
+            </div>
+            <div class="var-controls">
+              <div class="segment" id="varBasisToggle">
+                <button class="segment-btn active" data-basis="ytd" onclick="setVarBasis('ytd', this)">YTD</button>
+                <button class="segment-btn" data-basis="fy" onclick="setVarBasis('fy', this)">Full year</button>
+              </div>
+              <div class="segment" id="varToggle">
+                <button class="segment-btn active" data-mode="all" onclick="setVarMode('all', this)">All</button>
+                <button class="segment-btn" data-mode="good" onclick="setVarMode('good', this)">Favorable</button>
+                <button class="segment-btn" data-mode="bad" onclick="setVarMode('bad', this)">Unfavorable</button>
+              </div>
+            </div>
+          </div>
+          <div class="var-list" id="varList"></div>
+          <div class="var-drill" id="varDrill">
+            <div class="var-drill-head">
+              <div class="var-drill-title" id="varDrillTitle"></div>
+              <button class="var-drill-close" onclick="closeVarDrill()">✕</button>
+            </div>
+            <div id="varDrillBody"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head sticky">
+            <div>
+              <div class="section-title">COGS composition</div>
+            </div>
+          </div>
+          <div class="donut-row">
+            <svg id="donut" viewBox="0 0 140 140"></svg>
+            <div class="donut-legend" id="donutLegend"></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head sticky">
+            <div>
+              <div class="section-title">P&amp;L flow</div>
+            </div>
+          </div>
+          <svg id="waterfall" viewBox="0 0 560 240" preserveAspectRatio="xMidYMid meet"></svg>
+        </div>
+      </div>
+
+      <!-- =========== COMPARISON VIEW =========== -->
+      <div id="compView" class="view">
+        <div class="page-header">
+          <div class="eyebrow">All funds</div>
+          <div class="page-title-row">
+            <div>
+              <div class="page-title">Fund comparison</div>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <table class="matrix" id="matrix"></table>
+        </div>
+      </div>
+
+      <!-- =========== FARM LIST VIEW =========== -->
+      <div id="farmListView" class="view">
+        <div class="page-header">
+          <div class="eyebrow" id="flEyebrow">Farms · GLF OZ</div>
+          <div class="page-title-row">
+            <div>
+              <div class="page-title" id="flTitle">Farms in GLF OZ</div>
+              <div class="page-sub" id="flSub"></div>
+            </div>
+          </div>
+        </div>
+        <div id="farmGrid" class="farm-grid"></div>
+        <div style="padding: 18px 28px; font-size: 11.5px; color: var(--text-mute);">
+          Farm-level monthly tracking loaded for GLF5 only in v1. Other farms appear at fund-rollup level.
+        </div>
+      </div>
+
+      <!-- =========== FARM DETAIL VIEW =========== -->
+      <div id="farmDetailView" class="view">
+        <div class="page-header">
+          <div class="eyebrow" id="fdEyebrow">Farm · GLF OZ</div>
+          <div class="page-title-row">
+            <div>
+              <div class="page-title" id="fdTitle">Gold Leaf Farm 5</div>
+              <div class="detail-meta-row">
+                <div class="detail-meta-item"><strong id="fdAcres">446.07</strong> acres</div>
+                <div class="detail-meta-item"><span class="dot"></span>As of <strong>Mar-26</strong></div>
+                <div class="detail-meta-item"><span class="dot"></span><strong id="fdProgress">25%</strong> through year</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="spend-banner">
+          <div class="spend-eyebrow-row">
+            <div class="eyebrow" id="fdSpendEyebrow">COGS / acre · YTD</div>
+            <select class="cat-select" id="catSelect" onchange="selectChartCategory(this.value)">
+              <option value="ALL">All categories</option>
+            </select>
+          </div>
+          <div class="spend-banner-grid">
+            <div>
+              <div class="spend-bignum-label" id="fdBigLabel">Cumulative COGS spend</div>
+              <div class="spend-bignum"><span class="currency">$</span><span id="fdBigNum">1,026</span></div>
+              <div class="spend-subline">
+                <strong id="fdRemaining">$2,917</strong> remaining of <strong id="fdFY">$3,943</strong> full-year forecast
+              </div>
+              <div class="spend-callout bad" id="fdCallout">
+                <span class="spend-callout-dot"></span>
+                <span id="fdCalloutText">YTD spend $169 over status-adjusted budget · FY forecast $130 over plan</span>
+              </div>
+            </div>
+            <div class="spend-chart-wrap">
+              <svg id="spendChart" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet"></svg>
+              <div class="chart-legend">
+                <div class="chart-legend-left">
+                  <span class="chart-legend-item"><span class="chart-legend-swatch" style="background: var(--accent);"></span>Forecast</span>
+                  <span class="chart-legend-item" style="color: var(--text-mute);"><span class="chart-legend-swatch dashed"></span>Budget</span>
+                  <span class="chart-legend-item"><span class="chart-legend-swatch band" style="background: var(--bad-soft);"></span>Variance</span>
+                </div>
+                <span id="chartFootnote">Actuals through Mar, forecast Apr–Dec</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section" style="padding: 22px 0 0;">
+          <div class="section-head sticky" style="padding-left: 28px; padding-right: 28px; margin-left: 0; margin-right: 0;">
+            <div>
+              <div class="section-title">Spend by category</div>
+            </div>
+          </div>
+          <div class="cat-table" id="catTable"></div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const FUND_LIST = ['GLF LP', 'GLF 26', 'GLF OZ', 'GLF AZ'];
+
+const data = {
+  'GLF LP': {
+    acres: 5532.94, yield: 2093, price: 3.03,
+    revenue: { f: 5794, b: 6339 },
+    cogs: {
+      Fertilizer:        { f:  463, b:  500, ytd:  283, ytdAdjB:  351 },
+      Irrigation:        { f:  805, b:  799, ytd:   67, ytdAdjB:  138 },
+      Labor:             { f:  447, b:  449, ytd:  139, ytdAdjB:  144 },
+      Chemicals:         { f:  527, b:  515, ytd:  261, ytdAdjB:  241 },
+      Pollination:       { f:  290, b:  283, ytd:  260, ytdAdjB:  283 },
+      Harvest:           { f:  587, b:  599, ytd:    2, ytdAdjB:    2 },
+      'General Farming': { f:  483, b:  499, ytd:  159, ytdAdjB:  190 },
+      'Other Farming':   { f:   80, b:   82, ytd:   27, ytdAdjB:   32 },
+      Development:       { f:    0, b:    0, ytd:    0, ytdAdjB:    0 },
+    },
+    cogsTotal:    { f: 3681, b: 3739 },
+    cogsPerLb:    { f: 1.95, b: 1.79 },
+    grossProfit:  { f: 2112, b: 2525 },
+    farmOverhead: { f:  886, b:  912 },
+    farmProfit:   { f: 1226, b: 1613 },
+    sharedOh:     { f:  390, b:  368 },
+    otherSGA:     { f:  136, b:  128 },
+    ebitda:       { f: 699, b: 1117 },
+    mgmtFee:      { f:  250, b:  250 },
+    capex:        { f:    4, b:    4 },
+    unleveredCF:  { f:  445, b:  862 },
+    interest:     { f:  780, b:  766 },
+    debt:         { f: 1072, b: 1072 },
+    fcf:          { f: -1407, b: -976 },
+    totalCostLb:  { f: 3.81, b: 3.49 },
+  },
+  'GLF 26': {
+    acres: 330.66, yield: 2890, price: 2.65,
+    revenue: { f: 7203, b: 7657 },
+    cogs: {
+      Fertilizer:        { f:  496, b:  526, ytd:  181, ytdAdjB:  398 },
+      Irrigation:        { f:  624, b:  621, ytd:   43, ytdAdjB:   63 },
+      Labor:             { f:  488, b:  478, ytd:  189, ytdAdjB:  191 },
+      Chemicals:         { f:  585, b:  647, ytd:  269, ytdAdjB:  375 },
+      Pollination:       { f:  369, b:  370, ytd:  369, ytdAdjB:  370 },
+      Harvest:           { f:  703, b:  693, ytd:    0, ytdAdjB:   21 },
+      'General Farming': { f: 1111, b: 1077, ytd:  659, ytdAdjB:  687 },
+      'Other Farming':   { f:   94, b:   60, ytd:   49, ytdAdjB:   24 },
+      Development:       { f:    0, b:    0, ytd:    0, ytdAdjB:    0 },
+    },
+    cogsTotal:    { f: 4470, b: 4471 },
+    cogsPerLb:    { f: 1.64, b: 1.55 },
+    grossProfit:  { f: 2733, b: 3046 },
+    farmOverhead: { f:  858, b:  810 },
+    farmProfit:   { f: 1875, b: 2237 },
+    sharedOh:     { f:  390, b:  368 },
+    otherSGA:     { f:  177, b:  163 },
+    ebitda:       { f: 1308, b: 1705 },
+    mgmtFee:      { f:  416, b:  416 },
+    capex:        { f:   97, b:   97 },
+    unleveredCF:  { f: 795, b: 1193 },
+    interest:     { f:  676, b:  673 },
+    debt:         { f:  209, b:  209 },
+    fcf:          { f:  -90, b:  311 },
+    totalCostLb:  { f: 2.68, b: 2.54 },
+  },
+  'GLF OZ': {
+    acres: 2085.09, yield: 1595, price: 2.74,
+    revenue: { f: 4044, b: 4375 },
+    cogs: {
+      Fertilizer:        { f:  474, b:  462, ytd:  315, ytdAdjB:  311 },
+      Irrigation:        { f:  794, b:  824, ytd:   76, ytdAdjB:  122 },
+      Labor:             { f:  498, b:  468, ytd:  134, ytdAdjB:  138 },
+      Chemicals:         { f:  423, b:  386, ytd:  216, ytdAdjB:  172 },
+      Pollination:       { f:  179, b:  173, ytd:  179, ytdAdjB:  173 },
+      Harvest:           { f:  450, b:  400, ytd:    6, ytdAdjB:    0 },
+      'General Farming': { f:  577, b:  532, ytd:  139, ytdAdjB:  160 },
+      'Other Farming':   { f:   56, b:   58, ytd:   21, ytdAdjB:   23 },
+      Development:       { f:   11, b:   64, ytd:   10, ytdAdjB:   39 },
+    },
+    cogsTotal:    { f: 3462, b: 3384 },
+    cogsPerLb:    { f: 2.37, b: 2.12 },
+    grossProfit:  { f: 582, b:  914 },
+    farmOverhead: { f:  460, b:  446 },
+    farmProfit:   { f:  122, b:  468 },
+    sharedOh:     { f:  390, b:  368 },
+    otherSGA:     { f:  163, b:  159 },
+    ebitda:       { f:   -432, b:  -58 },
+    mgmtFee:      { f:  436, b:  436 },
+    capex:        { f:   17, b:   17 },
+    unleveredCF:  { f: -884, b: -510 },
+    interest:     { f:  599, b:  693 },
+    debt:         { f:  120, b:  120 },
+    fcf:          { f:-1603, b:-1323 },
+    totalCostLb:  { f: 3.86, b: 3.57 },
+  },
+  'GLF AZ': {
+    acres: 3800.32, yield: 128, price: 2.45,
+    revenue: { f: 352, b: 313 },
+    cogs: {
+      Fertilizer:        { f:  170, b:  138, ytd:   67, ytdAdjB:   71 },
+      Irrigation:        { f:  281, b:  242, ytd:   83, ytdAdjB:   46 },
+      Labor:             { f:  248, b:  207, ytd:   84, ytdAdjB:   43 },
+      Chemicals:         { f:  175, b:  185, ytd:   35, ytdAdjB:   45 },
+      Pollination:       { f:   23, b:   37, ytd:    0, ytdAdjB:    0 },
+      Harvest:           { f:  109, b:  109, ytd:    0, ytdAdjB:    0 },
+      'General Farming': { f:  380, b:  366, ytd:  143, ytdAdjB:  162 },
+      'Other Farming':   { f:   43, b:   45, ytd:   13, ytdAdjB:   15 },
+      Development:       { f:   72, b:    0, ytd:    6, ytdAdjB:    0 },
+    },
+    cogsTotal:    { f:  1502, b:  1395 },
+    cogsPerLb:    { f: 11.74, b: 10.90 },
+    grossProfit:  { f: -1150, b: -1277 },
+    farmOverhead: { f:   162, b:   165 },
+    farmProfit:   { f: -1312, b: -1442 },
+    sharedOh:     { f:   390, b:   368 },
+    otherSGA:     { f:    76, b:    65 },
+    ebitda:       { f: -1778, b: -1875 },
+    mgmtFee:      { f:   362, b:   362 },
+    capex:        { f:    70, b:    70 },
+    unleveredCF:  { f: -2210, b: -2307 },
+    interest:     { f:   769, b:   707 },
+    debt:         { f:    73, b:    73 },
+    fcf:          { f: -3052, b: -3087 },
+    totalCostLb:  { f: 26.60, b: 26.58 },
+  },
+};
+
+const detail = {
+  Fertilizer: [
+    { name: 'Liquid Inj Fertilizer- K', f: 86, b: 88 },
+    { name: 'SOP', f: 27, b: 30 },
+    { name: 'Dry/Liquid Inj Fertilizer- Gypsum', f: 26, b: 26 },
+    { name: 'Liquid Inj Fertilizer (Phosphorous)', f: 36, b: 36 },
+    { name: 'Liquid Inj Fertilizer (micros)', f: 7, b: 7 },
+    { name: 'Liquid Inj Fertilizer- ACS (Humic)', f: 6, b: 6 },
+    { name: 'Liquid Inj Fertilizer- CAN 17/21', f: 49, b: 44 },
+    { name: 'Liquid Inj Fertilizer- UN32', f: 70, b: 68 },
+    { name: 'Liquid Inj Fertilizer- 8-8-8', f: 16, b: 16 },
+    { name: 'Dry Inj Fertilizer- Boron/Zinc', f: 3, b: 3 },
+    { name: 'Post Harvest Tree Spray', f: 16, b: 16 },
+    { name: 'Composting/Soil Amendments', f: 139, b: 150 },
+    { name: 'Bud break - foliar (Boron, Zn)', f: 0, b: 3 },
+  ],
+  Irrigation: [
+    { name: 'Power (PG&E)', f: 475, b: 472 },
+    { name: 'Well diesel fuel', f: 0, b: 0 },
+    { name: 'Water', f: 152, b: 149 },
+  ],
+  Labor: [
+    { name: 'General Labor', f: 175, b: 192 },
+    { name: 'Benefits', f: 52, b: 59 },
+    { name: 'Contract Labor', f: 178, b: 181 },
+    { name: 'Ranch Management Fee', f: 0, b: 0 },
+  ],
+  Chemicals: [
+    { name: 'Dormant/Delayed Spray', f: 10, b: 17 },
+    { name: 'Pre-Emergent Weed Spray', f: 12, b: 15 },
+    { name: 'Winter Weed Spraying (Strips)', f: 19, b: 14 },
+    { name: 'Bud Break Application', f: 2, b: 8 },
+    { name: 'Bloom Spray Stage 1 (Fungicide)', f: 74, b: 70 },
+    { name: 'Bloom Spray Stage 2 (Fungicide)', f: 68, b: 63 },
+    { name: 'Bloom Spray Stage 3 (Fungicide)', f: 13, b: 13 },
+    { name: 'Gopher & Squirrel Bait', f: 71, b: 64 },
+    { name: 'Insect Control (Semios Puffers)', f: 35, b: 33 },
+    { name: 'AF36 - Aflatoxin', f: 46, b: 46 },
+    { name: 'Tree Spraying Hull Split', f: 62, b: 62 },
+    { name: 'Tree Spraying NOW', f: 20, b: 20 },
+    { name: 'Ant Control (Insecticide)', f: 17, b: 17 },
+    { name: 'Other chemical line items', f: 75, b: 78 },
+  ],
+  Pollination: [
+    { name: 'Pollination (Conventional)', f: 162, b: 162 },
+    { name: 'Aerial Application', f: 34, b: 34 },
+    { name: 'Drone Application', f: 212, b: 212 },
+    { name: 'Other application', f: 5, b: 5 },
+  ],
+  Harvest: [
+    { name: 'Hulling', f: 44, b: 44 },
+    { name: 'Pick Up Harvester Machine', f: 5, b: 5 },
+    { name: 'Machine Sweeping (Outsourced)', f: 4, b: 4 },
+    { name: 'Machine Shaking - 1st', f: 6, b: 6 },
+    { name: 'Machine Shaking - 2nd', f: 21, b: 20 },
+    { name: 'Harvest Repair & Maintenance', f: 110, b: 110 },
+    { name: 'Other harvest costs', f: 220, b: 220 },
+  ],
+  'General Farming': [
+    { name: 'Tree Replants', f: 2, b: 1 },
+    { name: 'Replant Grafting', f: 31, b: 35 },
+    { name: 'Berm Blowing', f: 23, b: 23 },
+    { name: 'Pruning (all types)', f: 90, b: 85 },
+    { name: 'Mowing/Disking', f: 43, b: 43 },
+    { name: 'Suckering', f: 33, b: 33 },
+    { name: 'Irrigation Repair & Maintenance', f: 127, b: 138 },
+    { name: 'Custom Application', f: 31, b: 28 },
+    { name: 'Diesel/Fuel & Supplies', f: 37, b: 35 },
+    { name: 'Other general farming', f: 65, b: 61 },
+  ],
+  'Other Farming': [
+    { name: 'PCA Consultant (tissue samples)', f: 5, b: 5 },
+    { name: 'Security', f: 2, b: 2 },
+    { name: 'Repairs & Maintenance', f: 47, b: 48 },
+    { name: 'Car and Truck', f: 2, b: 2 },
+    { name: 'Permits', f: 16, b: 15 },
+  ],
+  Development: [
+    { name: 'Tree Removal & Prep', f: 11, b: 16 },
+    { name: 'Build Roads', f: 8, b: 10 },
+    { name: 'Tree Expenses', f: 8, b: 10 },
+  ],
+};
+
+const FARMS_BY_FUND = {
+  'GLF LP': [],
+  'GLF 26': [],
+  'GLF OZ': ['GLF5'],
+  'GLF AZ': [],
+};
+
+const farms = {
+  'GLF5': {
+    fund: 'GLF OZ',
+    fullName: 'Gold Leaf Farm 5',
+    acres: 446.07,
+    asOf: 'Mar-26',
+    yearProgressPct: 25,
+    fyForecast: 3943,
+    fyBudget: 3842,
+    ytdActual: 1026,
+    ytdAdjBudget: 857,
+    fyVariance: 101,
+    ytdVariance: 169,
+    months: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    nowMonthIdx: 2,
+    monthlyCum: {
+      'ALL':              { fcst: [283, 695, 993, 1395, 1686, 2100, 2451, 2743, 3054, 3648, 3819, 3943], budget: [87, 482, 828, 1318, 1621, 2029, 2368, 2660, 2971, 3596, 3720, 3842] },
+      'Fertilizer':       { fcst: [262, 344, 373, 455, 495, 501, 513, 513, 513, 590, 590, 590],          budget: [0, 20, 186, 426, 483, 483, 483, 483, 483, 591, 591, 591] },
+      'Irrigation':       { fcst: [3, 4, 12, 76, 201, 354, 516, 643, 737, 812, 896, 913],                budget: [6, 12, 55, 119, 244, 397, 559, 686, 780, 855, 894, 911] },
+      'Labor':            { fcst: [-6, 29, 72, 107, 148, 183, 227, 279, 323, 375, 410, 453],             budget: [39, 74, 109, 144, 185, 220, 264, 316, 360, 412, 445, 486] },
+      'Chemicals':        { fcst: [-17, 15, 106, 236, 251, 381, 436, 436, 476, 491, 491, 491],           budget: [0, 24, 104, 204, 219, 349, 404, 404, 444, 459, 459, 459] },
+      'Pollination':      { fcst: [0, 127, 254, 254, 254, 254, 254, 254, 254, 254, 254, 254],            budget: [0, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253, 253] },
+      'Harvest':          { fcst: [2, 5, 5, 5, 21, 40, 71, 134, 197, 523, 523, 523],                     budget: [0, 0, 0, 0, 16, 35, 66, 129, 192, 518, 518, 518] },
+      'General Farming':  { fcst: [38, 159, 151, 216, 262, 330, 374, 418, 479, 525, 574, 635],           budget: [39, 93, 104, 151, 197, 265, 309, 353, 414, 460, 509, 570] },
+      'Other Farming':    { fcst: [1, 9, 17, 29, 32, 35, 38, 44, 53, 56, 59, 62],                        budget: [3, 6, 17, 21, 24, 27, 30, 36, 45, 48, 51, 54] },
+      'Development':      { fcst: [0, 3, 3, 17, 22, 22, 22, 22, 22, 22, 22, 22],                         budget: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+    },
+    categories: [
+      { name: 'Fertilizer', icon: '🌱', fcst: 590, budget: 590, ytd: 374, ytdAdjBudget: 353, status: '3 done · 6 wip · 10 pending',
+        items: [
+          { name: 'Liquid Inj Fertilizer- K', icon: '✓', fcst: 186, budget: 268, ytd: 180, pct: 97 },
+          { name: 'SOP', icon: '✓', fcst: 82, budget: 0, ytd: 82, pct: 100 },
+          { name: 'Dry/Liquid Inj Fertilizer- Gypsum', icon: '◐', fcst: 20, budget: 20, ytd: 0, pct: 0 },
+          { name: 'Liquid Inj Fertilizer (Phosphorous)', icon: '◐', fcst: 82, budget: 82, ytd: 56, pct: 68 },
+          { name: 'Liquid Inj Fertilizer- UN32', icon: '◐', fcst: 134, budget: 160, ytd: 29, pct: 21 },
+        ] },
+      { name: 'Irrigation', icon: '💧', fcst: 912, budget: 911, ytd: 12, ytdAdjBudget: 12, status: '4 pending',
+        items: [
+          { name: 'Power (PG&E)', icon: '○', fcst: 226, budget: 226, ytd: 0, pct: 0 },
+          { name: 'Water', icon: '○', fcst: 686, budget: 685, ytd: 12, pct: 2 },
+        ] },
+      { name: 'Labor', icon: '👷', fcst: 453, budget: 486, ytd: 72, ytdAdjBudget: 72, status: '5 pending',
+        items: [
+          { name: 'General Labor', icon: '○', fcst: 304, budget: 329, ytd: 46, pct: 15 },
+          { name: 'Benefits', icon: '○', fcst: 60, budget: 67, ytd: 9, pct: 15 },
+          { name: 'Contract Labor', icon: '○', fcst: 89, budget: 90, ytd: 17, pct: 19 },
+        ] },
+      { name: 'Chemicals', icon: '🧪', fcst: 525, budget: 459, ytd: 140, ytdAdjBudget: 74, status: '3 done · 1 wip · 27 pending',
+        items: [
+          { name: 'Dormant/Delayed Dormant Spray', icon: '✓', fcst: 32, budget: 24, ytd: 32, pct: 100 },
+          { name: 'Bloom Spray - Stage 1', icon: '✓', fcst: 81, budget: 50, ytd: 81, pct: 100 },
+          { name: 'Bloom Spray - Stage 2', icon: '○', fcst: 70, budget: 70, ytd: 0, pct: 0 },
+          { name: 'Tree Spraying - Hull Split', icon: '○', fcst: 130, budget: 130, ytd: 0, pct: 0 },
+          { name: 'Ant Control', icon: '○', fcst: 10, budget: 10, ytd: 0, pct: 0 },
+        ] },
+      { name: 'Pollination', icon: '🐝', fcst: 254, budget: 253, ytd: 254, ytdAdjBudget: 253, status: '1 done · 6 pending',
+        items: [
+          { name: 'Pollination', icon: '✓', fcst: 254, budget: 253, ytd: 254, pct: 100 },
+        ] },
+      { name: 'Harvest', icon: '🌾', fcst: 522, budget: 518, ytd: 4, ytdAdjBudget: 4, status: '1 wip · 14 pending',
+        items: [
+          { name: 'Hulling', icon: '○', fcst: 311, budget: 311, ytd: 0, pct: 0 },
+          { name: 'Harvest Repair & Maintenance', icon: '◐', fcst: 84, budget: 80, ytd: 4, pct: 5 },
+          { name: 'Harvest Fuel', icon: '○', fcst: 44, budget: 44, ytd: 0, pct: 0 },
+          { name: 'Harvest Labor', icon: '○', fcst: 60, budget: 60, ytd: 0, pct: 0 },
+        ] },
+      { name: 'General Farming', icon: '🚜', fcst: 633, budget: 567, ytd: 150, ytdAdjBudget: 69, status: '38 pending',
+        items: [
+          { name: 'Prune: Hand Pruning', icon: '○', fcst: 80, budget: 0, ytd: 80, pct: 100 },
+          { name: 'Technology', icon: '○', fcst: 11, budget: 10, ytd: 11, pct: 100 },
+          { name: 'Diesel/Fuel', icon: '○', fcst: 74, budget: 68, ytd: 23, pct: 31 },
+          { name: 'Rental Equipment', icon: '○', fcst: 342, budget: 364, ytd: 15, pct: 4 },
+        ] },
+      { name: 'Other Farming', icon: '📦', fcst: 62, budget: 54, ytd: 17, ytdAdjBudget: 17, status: '10 pending',
+        items: [
+          { name: 'Repairs & Maintenance', icon: '○', fcst: 44, budget: 36, ytd: 17, pct: 38 },
+          { name: 'Permits', icon: '○', fcst: 10, budget: 10, ytd: 0, pct: 4 },
+        ] },
+      { name: 'Development', icon: '🌳', fcst: 22, budget: 22, ytd: 3, ytdAdjBudget: 3, status: '1 wip · 21 pending',
+        items: [
+          { name: 'Budding, Tieing, Training', icon: '◐', fcst: 22, budget: 22, ytd: 3, pct: 14 },
+        ] },
+    ],
+  },
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let activeFund = 'GLF OZ';   // default per user request: OZ so GLF5 is visible on load
+let activeView = 'fund';
+let activeFarm = null;
+let varMode = 'all';
+let varBasis = 'ytd'; // 'ytd' = YTD actual vs YTD budget pace · 'fy' = full-year forecast vs budget
+let activeChartCategory = 'ALL';
+let navHistory = [];
+let activeVarCategory = null;     // controls variance row drill + donut dim state
+let activeFundChartCategory = 'ALL';   // fund-level YTD chart category filter
+let cmdkSelectedIdx = 0;
+let cmdkResults = [];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const fmt$ = (n) => {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  const abs = Math.abs(n);
+  return (n < 0 ? '−$' : '$') + Math.round(abs).toLocaleString();
+};
+
+function getCssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), 2000);
+}
+
+/* ============================================================
+   THEME
+   ============================================================ */
+function toggleTheme() {
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  rerenderCharts();
+}
+function rerenderCharts() {
+  if (activeView === 'fund') {
+    renderWaterfall();
+    renderDonut();
+    renderKpis();
+    renderFundTrend();
+  } else if (activeView === 'farmDetail') {
+    renderSpendChart();
+  }
+}
+
+/* ============================================================
+   URL STATE (share links)
+   ============================================================ */
+function encodeState() {
+  const params = new URLSearchParams();
+  params.set('view', activeView);
+  if (activeFund) params.set('fund', activeFund);
+  if (activeFarm) params.set('farm', activeFarm);
+  const theme = document.body.getAttribute('data-theme');
+  if (theme !== 'light') params.set('theme', theme);
+  return params.toString();
+}
+function applyUrlState() {
+  const hash = window.location.hash.replace(/^#/, '');
+  if (!hash) return false;
+  const params = new URLSearchParams(hash);
+  const view = params.get('view');
+  const fund = params.get('fund');
+  const farm = params.get('farm');
+  const theme = params.get('theme');
+  if (theme === 'dark') document.body.setAttribute('data-theme', 'dark');
+  if (fund && FUND_LIST.includes(fund)) activeFund = fund;
+  if (view === 'farmDetail' && farm && farms[farm]) {
+    activeFarm = farm; activeView = 'farmDetail';
+  } else if (view === 'farmList' && fund && FUND_LIST.includes(fund)) {
+    activeView = 'farmList';
+  } else if (view === 'comp') {
+    activeView = 'comp';
+  } else {
+    activeView = 'fund';
+  }
+  return true;
+}
+function copyShareLink() {
+  // In sandboxed iframes (about:srcdoc) the URL is useless. Detect and warn.
+  if (location.protocol === 'about:' || !location.origin || location.origin === 'null') {
+    showToast('Open this page in a tab to share');
+    return;
+  }
+  const url = location.origin + location.pathname + '#' + encodeState();
+  navigator.clipboard.writeText(url).then(
+    () => showToast('Link copied'),
+    () => {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); showToast('Link copied'); } catch { showToast('Could not copy'); }
+      document.body.removeChild(ta);
+    }
+  );
+}
+function updateUrlHash() {
+  try {
+    history.replaceState(null, '', '#' + encodeState());
+  } catch (e) {
+    // Sandboxed iframe contexts (e.g. about:srcdoc) disallow replaceState.
+    // Silently skip — share-link button still builds the URL on demand.
+  }
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function renderSidebar() {
+  const fundsHtml = FUND_LIST.map(name => {
+    const isActive = (activeView === 'fund' && name === activeFund) ||
+                     (activeView === 'farmList' && name === activeFund) ||
+                     (activeView === 'farmDetail' && farms[activeFarm]?.fund === name);
+    return `
+      <div class="sb-item ${isActive ? 'active' : ''}" onclick="selectFund('${name}')">
+        <span>${name}</span>
+      </div>`;
+  }).join('');
+  const compHtml = `
+    <div class="sb-item ${activeView === 'comp' ? 'active' : ''}" onclick="goComparison()">
+      <span>Compare all</span>
+      <span class="sb-item-meta">→</span>
+    </div>`;
+  document.getElementById('sbFunds').innerHTML = fundsHtml + compHtml;
+
+  const fundForFarms = activeView === 'farmDetail' ? farms[activeFarm]?.fund : activeFund;
+  document.getElementById('sbFarmsLabel').textContent = `Farms · ${fundForFarms}`;
+  const farmIds = FARMS_BY_FUND[fundForFarms] || [];
+  let farmsHtml = '';
+  if (farmIds.length === 0) {
+    farmsHtml = '<div class="sb-empty">No detail loaded</div>';
+  } else {
+    farmsHtml = farmIds.map(id => {
+      const isActive = activeView === 'farmDetail' && activeFarm === id;
+      return `
+        <div class="sb-item sub ${isActive ? 'active' : ''}" onclick="openFarm('${id}')">
+          <span>${id}</span>
+        </div>`;
+    }).join('');
+  }
+  document.getElementById('sbFarms').innerHTML = farmsHtml;
+}
+
+/* ============================================================
+   BREADCRUMB
+   ============================================================ */
+function renderBreadcrumb() {
+  const el = document.getElementById('breadcrumb');
+  let html = '';
+  if (activeView === 'fund') {
+    html = `<span class="current">${activeFund}</span>`;
+  } else if (activeView === 'comp') {
+    html = `<span class="current">Fund comparison</span>`;
+  } else if (activeView === 'farmList') {
+    html = `<span class="crumb-link" onclick="selectFund('${activeFund}')">${activeFund}</span>
+            <span class="sep">›</span>
+            <span class="current">Farms</span>`;
+  } else if (activeView === 'farmDetail') {
+    const f = farms[activeFarm];
+    html = `<span class="crumb-link" onclick="selectFund('${f.fund}')">${f.fund}</span>
+            <span class="sep">›</span>
+            <span class="crumb-link" onclick="openFarmList('${f.fund}')">Farms</span>
+            <span class="sep">›</span>
+            <span class="current">${activeFarm}</span>`;
+  }
+  el.innerHTML = html;
+}
+
+/* ============================================================
+   VIEW SWITCHING
+   ============================================================ */
+function pushHistory() {
+  navHistory.push({ view: activeView, fund: activeFund, farm: activeFarm });
+  document.getElementById('navBack').disabled = navHistory.length === 0;
+}
+function navBack() {
+  if (navHistory.length === 0) return;
+  const prev = navHistory.pop();
+  activeView = prev.view;
+  activeFund = prev.fund;
+  activeFarm = prev.farm;
+  applyView();
+  document.getElementById('navBack').disabled = navHistory.length === 0;
+}
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function applyView() {
+  closeVarDrill();
+  if (activeView === 'fund') {
+    showView('fundView');
+    renderFundView();
+  } else if (activeView === 'comp') {
+    showView('compView');
+    renderMatrix();
+  } else if (activeView === 'farmList') {
+    showView('farmListView');
+    renderFarmList();
+  } else if (activeView === 'farmDetail') {
+    showView('farmDetailView');
+    renderFarmDetail();
+  }
+  renderSidebar();
+  renderBreadcrumb();
+  document.getElementById('contentScroll').scrollTop = 0;
+  updateUrlHash();
+}
+
+function selectFund(name) {
+  if (activeView !== 'fund' || activeFund !== name) pushHistory();
+  activeView = 'fund';
+  activeFund = name;
+  applyView();
+}
+function goComparison() {
+  if (activeView !== 'comp') pushHistory();
+  activeView = 'comp';
+  applyView();
+}
+function openFarmList(fund) {
+  pushHistory();
+  activeView = 'farmList';
+  activeFund = fund;
+  applyView();
+}
+function openFarm(id) {
+  pushHistory();
+  activeView = 'farmDetail';
+  activeFarm = id;
+  activeChartCategory = 'ALL';
+  applyView();
+}
+
+/* ============================================================
+   FUND VIEW
+   ============================================================ */
+function renderFundView() {
+  const d = data[activeFund];
+  document.getElementById('fvTitle').textContent = activeFund;
+  document.getElementById('fvSub').textContent =
+    `${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} acres`;
+  renderKpis();
+  renderWaterfall();
+  renderDonut();
+  renderVarList();
+  populateFundChartCategoryDropdown();
+  renderFundTrend();
+}
+
+/* Fund-level monthly cumulative series — illustrative.
+   The source spreadsheet has only annual figures per fund. This generator
+   produces a plausible cumulative shape that lands at the actual annual
+   value at year-end. Replace with real monthly source data when available. */
+// Cumulative monthly series. Endpoints are real: the "now" point (April, index 3)
+// is anchored to the real YTD actual / YTD-adjusted budget pulled from NetSuite,
+// and the December point is the real full-year forecast / budget. The month-to-month
+// shape *between* those anchors is illustrative (seasonal weights), since this
+// workbook does not carry per-fund monthly detail — only period snapshots.
+const NOW_MONTH_IDX = 3; // April (actuals booked through April 2026)
+function fundCumulativeSeries(fundName, categoryName) {
+  const d = data[fundName];
+  // Category-specific seasonal weights (Jan..Dec). Used only to shape the curve
+  // between the real anchor points, never to invent the anchor values themselves.
+  const shapes = {
+    ALL:              [0.04, 0.06, 0.08, 0.09, 0.09, 0.10, 0.10, 0.09, 0.10, 0.13, 0.06, 0.06],
+    Fertilizer:       [0.30, 0.10, 0.05, 0.10, 0.07, 0.02, 0.02, 0.00, 0.00, 0.20, 0.07, 0.07],
+    Irrigation:       [0.00, 0.00, 0.02, 0.07, 0.14, 0.17, 0.17, 0.14, 0.10, 0.08, 0.07, 0.04],
+    Labor:            [0.07, 0.07, 0.08, 0.08, 0.09, 0.08, 0.09, 0.11, 0.09, 0.10, 0.07, 0.07],
+    Chemicals:        [0.02, 0.05, 0.18, 0.25, 0.04, 0.25, 0.10, 0.02, 0.05, 0.02, 0.01, 0.01],
+    Pollination:      [0.00, 0.50, 0.50, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    Harvest:          [0.00, 0.00, 0.00, 0.00, 0.03, 0.03, 0.06, 0.12, 0.13, 0.63, 0.00, 0.00],
+    'General Farming':[0.06, 0.18, 0.00, 0.10, 0.07, 0.10, 0.07, 0.07, 0.10, 0.07, 0.08, 0.10],
+    'Other Farming':  [0.02, 0.10, 0.10, 0.18, 0.05, 0.05, 0.05, 0.10, 0.15, 0.05, 0.05, 0.10],
+    Development:      [0.00, 0.13, 0.00, 0.65, 0.22, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+  };
+  const shape = shapes[categoryName] || shapes.ALL;
+
+  // Resolve full-year and YTD anchors (real). For "ALL" sum across categories.
+  let fyForecast, fyBudget, ytdActual, ytdBudget;
+  if (categoryName === 'ALL') {
+    fyForecast = d.cogsTotal.f;
+    fyBudget   = d.cogsTotal.b;
+    ytdActual = 0; ytdBudget = 0;
+    Object.values(d.cogs).forEach(c => {
+      ytdActual += (c.ytd ?? 0);
+      ytdBudget += (c.ytdAdjB ?? 0);
+    });
+  } else {
+    const c = d.cogs[categoryName];
+    if (!c) return null;
+    fyForecast = c.f;
+    fyBudget   = c.b;
+    ytdActual  = c.ytd ?? null;
+    ytdBudget  = c.ytdAdjB ?? null;
+  }
+
+  // Build a cumulative curve that passes through two real anchors:
+  //   index NOW_MONTH_IDX  -> ytd value
+  //   index 11 (December)  -> full-year value
+  // The shape's mass before/after "now" is rescaled so each segment hits its anchor.
+  function buildCurve(shapeArr, ytdAnchor, fyAnchor) {
+    const preMass  = shapeArr.slice(0, NOW_MONTH_IDX + 1).reduce((s,v)=>s+v, 0) || 1;
+    const postMass = shapeArr.slice(NOW_MONTH_IDX + 1).reduce((s,v)=>s+v, 0) || 1;
+    const fyVal = fyAnchor;
+    // If we have a real YTD anchor, use it; otherwise fall back to proportional.
+    const ytdVal = (ytdAnchor === null || ytdAnchor === undefined)
+      ? fyVal * (preMass) // proportional fallback
+      : ytdAnchor;
+    const remainder = Math.max(fyVal - ytdVal, 0);
+    const cum = [];
+    let c = 0;
+    for (let i = 0; i < 12; i++) {
+      if (i <= NOW_MONTH_IDX) {
+        c += (shapeArr[i] / preMass) * ytdVal;
+      } else {
+        c += (shapeArr[i] / postMass) * remainder;
+      }
+      cum.push(Math.round(c));
+    }
+    // Force exact anchors (guard against rounding drift)
+    cum[NOW_MONTH_IDX] = Math.round(ytdVal);
+    cum[11] = Math.round(fyVal);
+    // Cumulative spend can never decrease — clamp any dip (can occur when a
+    // category's seasonal weight is ~0 just after the YTD anchor).
+    for (let i = 1; i < 12; i++) {
+      if (cum[i] < cum[i - 1]) cum[i] = cum[i - 1];
+    }
+    return cum;
+  }
+
+  const fcstCum   = buildCurve(shape, ytdActual, fyForecast);
+  const budgetCum = buildCurve(shape, ytdBudget, fyBudget);
+
+  return { fcstCum, budgetCum, fyForecast, fyBudget, ytdActual, ytdBudget };
+}
+
+function populateFundChartCategoryDropdown() {
+  const sel = document.getElementById('fundCatSelect');
+  let opts = '<option value="ALL">Total COGS</option>';
+  CAT_ORDER.forEach(cat => {
+    if (data[activeFund].cogs[cat] && data[activeFund].cogs[cat].f > 0) {
+      opts += `<option value="${cat}">${cat}</option>`;
+    }
+  });
+  sel.innerHTML = opts;
+  const valid = activeFundChartCategory === 'ALL' ||
+                (data[activeFund].cogs[activeFundChartCategory] &&
+                 data[activeFund].cogs[activeFundChartCategory].f > 0);
+  sel.value = valid ? activeFundChartCategory : 'ALL';
+  if (!valid) activeFundChartCategory = 'ALL';
+}
+
+function selectFundChartCategory(value) {
+  activeFundChartCategory = value;
+  renderFundTrend();
+}
+
+function renderFundTrend() {
+  const series = fundCumulativeSeries(activeFund, activeFundChartCategory);
+  if (!series) return;
+  const { fcstCum, budgetCum, fyForecast, fyBudget, ytdActual, ytdBudget } = series;
+  const nowMonthIdx = NOW_MONTH_IDX; // April — actuals booked through April 2026
+  const ytd = (ytdActual != null) ? Math.round(ytdActual) : fcstCum[nowMonthIdx];
+  const fyVar = fyBudget - fyForecast;
+
+  const label = activeFundChartCategory === 'ALL' ? 'Cumulative COGS spend' : `${activeFundChartCategory} · cumulative`;
+  document.getElementById('ftLabel').textContent = label;
+  document.getElementById('ftBigNum').textContent = ytd.toLocaleString();
+  document.getElementById('ftRemaining').textContent = '$' + Math.max(fyForecast - ytd, 0).toLocaleString();
+  document.getElementById('ftFY').textContent = '$' + fyForecast.toLocaleString();
+
+  const ytdOver = ytd - ytdBudget;
+  const callout = document.getElementById('ftCallout');
+  const calloutText = document.getElementById('ftCalloutText');
+  const prefix = activeFundChartCategory === 'ALL' ? '' : `${activeFundChartCategory}: `;
+  if (ytdOver > 0 && fyVar < 0) {
+    callout.className = 'fund-trend-callout bad';
+    calloutText.textContent = `${prefix}YTD $${ytdOver} over pace · FY $${Math.abs(fyVar)} over plan`;
+  } else if (ytdOver > 0) {
+    callout.className = 'fund-trend-callout bad';
+    calloutText.textContent = `${prefix}YTD $${ytdOver} over pace · FY forecast on plan`;
+  } else if (fyVar < 0) {
+    callout.className = 'fund-trend-callout bad';
+    calloutText.textContent = `${prefix}YTD on pace · FY $${Math.abs(fyVar)} over plan`;
+  } else {
+    callout.className = 'fund-trend-callout good';
+    calloutText.textContent = `${prefix}YTD on pace · FY on or under plan`;
+  }
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const W = 600, H = 200;
+  const margin = { top: 20, right: 80, bottom: 26, left: 8 };
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  const rawMax = Math.max(...fcstCum, ...budgetCum, 1);
+  let maxY;
+  if (rawMax >= 5000) maxY = Math.ceil(rawMax / 1000) * 1000;
+  else if (rawMax >= 500) maxY = Math.ceil(rawMax / 100) * 100;
+  else if (rawMax >= 50) maxY = Math.ceil(rawMax / 50) * 50;
+  else maxY = Math.ceil(rawMax / 10) * 10;
+  if (maxY === 0) maxY = 10;
+
+  const xScale = i => margin.left + (i / (months.length - 1)) * innerW;
+  const yScale = val => margin.top + innerH * (1 - val / maxY);
+
+  const smoothPath = (arr) => {
+    if (arr.length < 2) return '';
+    let d = `M ${xScale(0)} ${yScale(arr[0])}`;
+    for (let i = 1; i < arr.length; i++) {
+      const x0 = xScale(i - 1), y0 = yScale(arr[i - 1]);
+      const x1 = xScale(i),     y1 = yScale(arr[i]);
+      const cx = (x0 + x1) / 2;
+      d += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      d += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  };
+  const buildBand = () => {
+    let forward = `M ${xScale(0)} ${yScale(fcstCum[0])}`;
+    for (let i = 1; i < fcstCum.length; i++) {
+      const x0 = xScale(i - 1), y0 = yScale(fcstCum[i - 1]);
+      const x1 = xScale(i),     y1 = yScale(fcstCum[i]);
+      const cx = (x0 + x1) / 2;
+      forward += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      forward += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    let back = '';
+    for (let i = budgetCum.length - 1; i > 0; i--) {
+      const x0 = xScale(i),     y0 = yScale(budgetCum[i]);
+      const x1 = xScale(i - 1), y1 = yScale(budgetCum[i - 1]);
+      const cx = (x0 + x1) / 2;
+      back += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      back += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    back += ` L ${xScale(0)} ${yScale(budgetCum[0])} Z`;
+    return forward + back;
+  };
+
+  const accent = getCssVar('--accent');
+  const goodSoft = getCssVar('--good-soft');
+  const badSoft = getCssVar('--bad-soft');
+  const muted = getCssVar('--text-mute');
+  const hairline = getCssVar('--hairline');
+  const fyOver = fyForecast > fyBudget;
+  const bandFill = fyOver ? badSoft : goodSoft;
+
+  let svg = '';
+  svg += `<line x1="${margin.left}" y1="${yScale(0)}" x2="${margin.left + innerW}" y2="${yScale(0)}" stroke="${hairline}" stroke-width="0.5"/>`;
+  svg += `<path d="${buildBand()}" fill="${bandFill}"/>`;
+  svg += `<path d="${smoothPath(budgetCum)}" stroke="${muted}" stroke-width="1.5" stroke-dasharray="4 4" stroke-linecap="round" fill="none" opacity="0.7"/>`;
+  svg += `<path d="${smoothPath(fcstCum)}" stroke="${accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+
+  const fyVal = fcstCum[months.length - 1];
+  const fyBudgetVal = budgetCum[months.length - 1];
+  const fyY = yScale(fyVal);
+  const fyBudgetY = yScale(fyBudgetVal);
+  const fmtK = val => val >= 1000 ? '$' + (val/1000).toFixed(1) + 'k' : '$' + val.toLocaleString();
+  svg += `<text x="${W - margin.right + 8}" y="${fyY + 4}" font-family="-apple-system" font-size="10.5" font-weight="600" fill="${accent}">${fmtK(fyVal)}</text>`;
+  if (Math.abs(fyBudgetY - fyY) > 14) {
+    svg += `<text x="${W - margin.right + 8}" y="${fyBudgetY + 4}" font-family="-apple-system" font-size="10" fill="${muted}">${fmtK(fyBudgetVal)}</text>`;
+  }
+
+  const labelIdxs = [0, nowMonthIdx, 5, 8, 11];
+  months.forEach((m, i) => {
+    if (labelIdxs.includes(i)) {
+      const anchor = i === 0 ? 'start' : (i === months.length - 1 ? 'end' : 'middle');
+      const isNow = i === nowMonthIdx;
+      svg += `<text x="${xScale(i)}" y="${H - 8}" font-family="-apple-system" font-size="10" text-anchor="${anchor}" fill="${isNow ? accent : muted}" font-weight="${isNow ? 500 : 400}">${m}</text>`;
+    }
+  });
+
+  const dotX = xScale(nowMonthIdx);
+  const dotY = yScale(fcstCum[nowMonthIdx]);
+  svg += `<circle cx="${dotX}" cy="${dotY}" r="9" fill="${accent}" opacity="0.15"/>`;
+  svg += `<circle cx="${dotX}" cy="${dotY}" r="4" fill="${accent}" stroke="${getCssVar('--bg')}" stroke-width="2"/>`;
+  svg += `<text x="${dotX}" y="${dotY - 11}" font-family="-apple-system" font-size="10.5" font-weight="600" fill="${accent}" text-anchor="middle">$${fcstCum[nowMonthIdx].toLocaleString()}</text>`;
+
+  document.getElementById('fundTrendChart').innerHTML = svg;
+}
+
+function renderKpis() {
+  const d = data[activeFund];
+  const dRev = d.revenue.f - d.revenue.b;
+  const dEbitda = d.ebitda.f - d.ebitda.b;
+  const dCogs = -(d.cogsPerLb.f - d.cogsPerLb.b); // lower is better → invert
+  const dFcf = d.fcf.f - d.fcf.b;
+
+  const pill = (val, isPerLb) => {
+    if (val === 0) return `<div class="kpi-delta neutral">on plan</div>`;
+    const good = val > 0;
+    const cls = good ? 'good' : 'bad';
+    const sign = good ? '+' : '−';
+    const str = isPerLb ? `$${Math.abs(val).toFixed(2)}` : fmt$(Math.abs(val));
+    return `<div class="kpi-delta ${cls}">${sign}${str.replace('$','$')}</div>`;
+  };
+
+  const kpi = (label, value, delta, isPerLb) => {
+    return `
+      <div class="kpi">
+        <div class="kpi-label">${label}</div>
+        <div class="kpi-value num">${value}</div>
+        ${pill(delta, isPerLb)}
+      </div>`;
+  };
+
+  document.getElementById('fvKpis').innerHTML = [
+    kpi('Revenue', fmt$(d.revenue.f), dRev, false),
+    kpi('EBITDA', fmt$(d.ebitda.f), dEbitda, false),
+    kpi('COGS / lb', '$' + d.cogsPerLb.f.toFixed(2), dCogs, true),
+    kpi('Free cash flow', fmt$(d.fcf.f), dFcf, false),
+  ].join('');
+}
+
+/* ============================================================
+   WATERFALL
+   ============================================================ */
+function renderWaterfall() {
+  const d = data[activeFund];
+  const stages = [
+    { key: 'rev',    label: 'Revenue',    type: 'total',    value: d.revenue.f,                 budget: d.revenue.b },
+    { key: 'cogs',   label: 'COGS',       type: 'cost',     value: -d.cogsTotal.f,              budget: -d.cogsTotal.b },
+    { key: 'gp',     label: 'GP',         type: 'subtotal', value: d.grossProfit.f,             budget: d.grossProfit.b },
+    { key: 'fOh',    label: 'Farm OH',    type: 'cost',     value: -d.farmOverhead.f,           budget: -d.farmOverhead.b },
+    { key: 'fp',     label: 'Farm P',     type: 'subtotal', value: d.farmProfit.f,              budget: d.farmProfit.b },
+    { key: 'sga',    label: 'SG&A',       type: 'cost',     value: -(d.sharedOh.f + d.otherSGA.f), budget: -(d.sharedOh.b + d.otherSGA.b) },
+    { key: 'ebitda', label: 'EBITDA',     type: 'subtotal', value: d.ebitda.f,                  budget: d.ebitda.b },
+    { key: 'mgmt',   label: 'Mgmt',       type: 'cost',     value: -(d.mgmtFee.f + d.capex.f),  budget: -(d.mgmtFee.b + d.capex.b) },
+    { key: 'ucf',    label: 'UCF',        type: 'subtotal', value: d.unleveredCF.f,             budget: d.unleveredCF.b },
+    { key: 'debt',   label: 'Debt',       type: 'cost',     value: -(d.interest.f + d.debt.f),  budget: -(d.interest.b + d.debt.b) },
+    { key: 'fcf',    label: 'FCF',        type: 'final',    value: d.fcf.f,                     budget: d.fcf.b },
+  ];
+
+  const W = 560, H = 240;
+  const margin = { top: 28, right: 12, bottom: 38, left: 12 };
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  let running = 0;
+  const positioned = stages.map(s => {
+    let start, end;
+    if (s.type === 'total' || s.type === 'subtotal' || s.type === 'final') {
+      start = 0; end = s.value; running = s.value;
+    } else {
+      start = running; end = running + s.value; running = end;
+    }
+    return { ...s, start, end };
+  });
+  const allY = positioned.flatMap(p => [p.start, p.end, 0]);
+  const minY = Math.min(...allY);
+  const maxY = Math.max(...allY);
+  const yPad = (maxY - minY) * 0.10;
+  const yScale = v => margin.top + innerH * (1 - (v - (minY - yPad)) / ((maxY + yPad) - (minY - yPad)));
+  const y0 = yScale(0);
+
+  const barW = innerW / positioned.length * 0.66;
+  const gap = innerW / positioned.length;
+
+  const accent = getCssVar('--accent');
+  const subColor = getCssVar('--wf-subtotal');
+  const costFill = getCssVar('--wf-cost-fill');
+  const costText = getCssVar('--wf-cost-text');
+  const good = getCssVar('--good');
+  const bad = getCssVar('--bad');
+  const hairline = getCssVar('--hairline');
+
+  let svg = `<line x1="${margin.left}" y1="${y0}" x2="${margin.left + innerW}" y2="${y0}" stroke="${hairline}" stroke-dasharray="2 3" stroke-width="0.5"/>`;
+
+  positioned.forEach((s, i) => {
+    const cx = margin.left + i * gap + gap/2;
+    const x = cx - barW/2;
+    const yTop = yScale(Math.max(s.start, s.end));
+    const yBot = yScale(Math.min(s.start, s.end));
+    let fill, valColor;
+    if (s.type === 'total')         { fill = accent;     valColor = accent; }
+    else if (s.type === 'final')    { fill = s.value >= 0 ? good : bad; valColor = fill; }
+    else if (s.type === 'subtotal') { fill = subColor;   valColor = subColor; }
+    else                            { fill = costFill;   valColor = costText; }
+    if (i < positioned.length - 1) {
+      const nextX = margin.left + (i+1) * gap + gap/2 - barW/2;
+      const connY = yScale(s.end);
+      svg += `<line x1="${x + barW}" y1="${connY}" x2="${nextX}" y2="${connY}" stroke="${hairline}" stroke-dasharray="2 3" stroke-width="0.5"/>`;
+    }
+    svg += `<rect class="wf-bar" x="${x}" y="${yTop}" width="${barW}" height="${Math.max(yBot - yTop, 1.5)}" rx="2" fill="${fill}"
+              data-label="${s.label}" data-fcst="${s.value}" data-budget="${s.budget}"
+              onmouseenter="showWfTip(event, this)" onmousemove="moveTip(event)" onmouseleave="hideTip()" />`;
+    const labelY = s.value >= 0 ? yTop - 4 : yBot + 12;
+    const valStr = s.type === 'total' || s.type === 'subtotal' || s.type === 'final'
+      ? fmt$(s.value)
+      : (s.value < 0 ? '−' : '+') + '$' + Math.round(Math.abs(s.value)).toLocaleString();
+    svg += `<text class="wf-value-text" x="${cx}" y="${labelY}" fill="${valColor}" text-anchor="middle">${valStr}</text>`;
+    svg += `<text class="wf-label-text" x="${cx}" y="${margin.top + innerH + 14}" text-anchor="middle">${s.label}</text>`;
+  });
+  document.getElementById('waterfall').innerHTML = svg;
+}
+
+/* ============================================================
+   DONUT
+   ============================================================ */
+const CAT_ORDER = ['Irrigation', 'Harvest', 'Chemicals', 'General Farming', 'Fertilizer', 'Labor', 'Pollination', 'Other Farming', 'Development'];
+
+function renderDonut() {
+  const d = data[activeFund];
+  const cogs = d.cogs;
+  const sorted = CAT_ORDER
+    .filter(c => cogs[c] && cogs[c].f > 0)
+    .map((c, i) => ({ name: c, value: cogs[c].f, budget: cogs[c].b, colorIdx: i }));
+  const total = sorted.reduce((s, v) => s + v.value, 0);
+
+  const cx = 70, cy = 70, r = 55, ir = 36;
+  let angle = -Math.PI / 2;
+  let svg = '';
+  sorted.forEach((s, i) => {
+    const frac = s.value / total;
+    const ang = frac * Math.PI * 2;
+    const x1 = cx + r * Math.cos(angle);
+    const y1 = cy + r * Math.sin(angle);
+    const x2 = cx + r * Math.cos(angle + ang);
+    const y2 = cy + r * Math.sin(angle + ang);
+    const ix1 = cx + ir * Math.cos(angle);
+    const iy1 = cy + ir * Math.sin(angle);
+    const ix2 = cx + ir * Math.cos(angle + ang);
+    const iy2 = cy + ir * Math.sin(angle + ang);
+    const large = ang > Math.PI ? 1 : 0;
+    const path = `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${ix2} ${iy2} A ${ir} ${ir} 0 ${large} 0 ${ix1} ${iy1} Z`;
+    const color = getCssVar(`--cogs-${(i % 9) + 1}`);
+    const dimClass = (activeVarCategory && activeVarCategory !== s.name) ? 'dim' : '';
+    svg += `<path class="donut-slice ${dimClass}" data-cat="${s.name}" d="${path}" fill="${color}"
+              data-fcst="${s.value}" data-budget="${s.budget}"
+              onclick="openDonutDrill('${s.name}')"
+              onmouseenter="showDonutTip(event, this)" onmousemove="moveTip(event)" onmouseleave="hideTip()"/>`;
+    angle += ang;
+  });
+  svg += `<text class="donut-center-label" x="${cx}" y="${cy - 6}">Total</text>`;
+  svg += `<text class="donut-center-value" x="${cx}" y="${cy + 10}">$${Math.round(total).toLocaleString()}</text>`;
+  document.getElementById('donut').innerHTML = svg;
+
+  const legendHtml = sorted
+    .slice()
+    .sort((a, b) => b.value - a.value)
+    .map(s => {
+      const color = getCssVar(`--cogs-${(s.colorIdx % 9) + 1}`);
+      const activeCls = activeVarCategory === s.name ? 'active' : '';
+      return `
+        <div class="legend-row ${activeCls}" onclick="openDonutDrill('${s.name}')">
+          <div class="legend-left">
+            <div class="legend-dot" style="background: ${color};"></div>
+            <span class="legend-name">${s.name}</span>
+          </div>
+          <span class="legend-val">$${Math.round(s.value)}</span>
+        </div>`;
+    }).join('');
+  document.getElementById('donutLegend').innerHTML = legendHtml;
+}
+
+/* ============================================================
+   INLINE DONUT DRILLDOWN
+   ============================================================ */
+function openDonutDrill(category) {
+  // Donut click now jumps to the variance section and opens its drill.
+  // (We kept the legend/slice interactivity; the dedicated donut drill panel was removed.)
+  if (!detail[category]) return;
+  openVarDrill(category);
+  // Scroll the variance section into view so users see the result of their click.
+  const varSection = document.getElementById('varList');
+  if (varSection) varSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function closeDonutDrill() {
+  // No-op kept for back-compat; variance drill is the only drill now.
+  closeVarDrill();
+}
+
+/* ============================================================
+   VARIANCE LIST
+   ============================================================ */
+function renderVarList() {
+  const d = data[activeFund];
+  const items = [];
+  const isYTD = varBasis === 'ytd';
+  // COGS categories only (per user spec — drilldown is line items by category)
+  Object.entries(d.cogs).forEach(([cat, v]) => {
+    // YTD basis: variance = budget pace to date − actual to date (+ = under pace, favorable)
+    // FY basis:  variance = full-year budget − full-year forecast (+ = forecast under budget)
+    const hasYTD = (v.ytd !== undefined && v.ytdAdjB !== undefined);
+    const variance = isYTD && hasYTD ? (v.ytdAdjB - v.ytd) : (v.b - v.f);
+    // Skip categories with no meaningful activity on this basis (avoids dead rows
+    // like Harvest/Development that haven't started spending YTD)
+    const magnitude = isYTD && hasYTD ? Math.max(v.ytd, v.ytdAdjB) : Math.max(v.f, v.b);
+    if (Math.abs(variance) >= 2 || (isYTD && magnitude >= 2)) {
+      items.push({
+        label: cat, variance,
+        fcst: v.f, budget: v.b,
+        ytd: v.ytd, ytdAdjB: v.ytdAdjB,
+      });
+    }
+  });
+  items.sort((a,b) => Math.abs(b.variance) - Math.abs(a.variance));
+
+  let filtered = items;
+  if (varMode === 'good') filtered = items.filter(i => i.variance > 0);
+  if (varMode === 'bad')  filtered = items.filter(i => i.variance < 0);
+  filtered = filtered.slice(0, 12);
+
+  const maxAbs = Math.max(...filtered.map(i => Math.abs(i.variance)), 1);
+  const html = filtered.map(it => {
+    const good = it.variance > 0;
+    const pct = Math.max((Math.abs(it.variance) / maxAbs) * 100, 4);
+    const sign = good ? '+' : '−';
+    const isActive = activeVarCategory === it.label;
+    const isDim = activeVarCategory && activeVarCategory !== it.label;
+    const safeCat = it.label.replace(/'/g, "\\'");
+    const sub = (isYTD && it.ytd !== undefined)
+      ? `$${it.ytd} spent vs $${it.ytdAdjB} budgeted to date`
+      : `$${it.fcst} fcst vs $${it.budget} budget`;
+    return `
+      <div class="var-row ${isActive ? 'active' : ''} ${isDim ? 'dim' : ''}" onclick="openVarDrill('${safeCat}')">
+        <div>
+          <div class="var-name">${it.label}</div>
+          <div class="var-sub">${sub}</div>
+        </div>
+        <div class="var-bar-track">
+          <div class="var-bar-fill ${good ? 'good' : 'bad'}" style="width: ${pct}%"></div>
+        </div>
+        <div class="var-val ${good ? 'good' : 'bad'}">${sign}$${Math.abs(it.variance)}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('varList').innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--text-mute);font-size:12px;">No items match this filter.</div>';
+
+  const sub = document.getElementById('varSubtitle');
+  if (sub) sub.textContent = isYTD
+    ? 'Year-to-date actual vs budget pace · per acre · favorable = under pace'
+    : 'Full-year forecast vs budget · per acre · favorable = forecast under budget';
+}
+function setVarBasis(basis, btn) {
+  varBasis = basis;
+  document.querySelectorAll('#varBasisToggle .segment-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeVarDrill();
+  renderVarList();
+}
+function setVarMode(mode, btn) {
+  varMode = mode;
+  document.querySelectorAll('#varToggle .segment-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  closeVarDrill();
+  renderVarList();
+}
+
+function openVarDrill(category) {
+  const items = detail[category];
+  if (!items) return;
+  activeVarCategory = category;
+  document.getElementById('varDrillTitle').textContent = `${category} · line items`;
+  const sorted = [...items].sort((a,b) => Math.abs(b.b - b.f) - Math.abs(a.b - a.f));
+  let html = `
+    <div class="vd-row-head">
+      <span>Line item</span>
+      <span>Fcst</span>
+      <span>Budget</span>
+      <span>Var</span>
+    </div>`;
+  sorted.forEach(it => {
+    const v = it.b - it.f;
+    const cls = v > 0 ? 'good' : (v < 0 ? 'bad' : 'dim');
+    const sign = v > 0 ? '+' : (v < 0 ? '−' : '');
+    html += `
+      <div class="vd-row">
+        <span class="name">${it.name}</span>
+        <span class="n">$${it.f}</span>
+        <span class="n">$${it.b}</span>
+        <span class="n ${cls}">${v === 0 ? '—' : sign + '$' + Math.abs(v)}</span>
+      </div>`;
+  });
+  document.getElementById('varDrillBody').innerHTML = html;
+  document.getElementById('varDrill').classList.add('active');
+  renderVarList();
+  renderDonut();
+}
+function closeVarDrill() {
+  activeVarCategory = null;
+  const el = document.getElementById('varDrill');
+  if (el) el.classList.remove('active');
+  if (activeView === 'fund') {
+    renderVarList();
+    renderDonut();
+  }
+}
+
+/* ============================================================
+   COMPARISON MATRIX
+   ============================================================ */
+function renderMatrix() {
+  const funds = FUND_LIST;
+  const metrics = [
+    { key: 'yield',        label: 'Yield (lbs/ac)',     fmt: v => v.toLocaleString(),  higher: true,  scalar: true,  src: 'yield' },
+    { key: 'cogsPerLb',    label: 'COGS / lb',          fmt: v => '$'+v.toFixed(2),    higher: false, sub: 'f' },
+    { key: 'grossProfit',  label: 'Gross Profit / ac',  fmt: v => fmt$(v),             higher: true,  sub: 'f' },
+    { key: 'ebitda',       label: 'EBITDA / ac',        fmt: v => fmt$(v),             higher: true,  sub: 'f' },
+    { key: 'fcf',          label: 'Free Cash Flow / ac',fmt: v => fmt$(v),             higher: true,  sub: 'f' },
+    { key: 'totalCostLb',  label: 'Total Cost / lb',    fmt: v => '$'+v.toFixed(2),    higher: false, sub: 'f' },
+  ];
+  let html = '<thead><tr><th>Metric</th>';
+  funds.forEach(f => html += `<th onclick="selectFund('${f}')">${f}</th>`);
+  html += '</tr></thead><tbody>';
+  metrics.forEach(m => {
+    const values = funds.map(f => m.scalar ? data[f][m.src] : data[f][m.key].f);
+    const sorted = [...values].sort((a,b) => m.higher ? b-a : a-b);
+    html += `<tr><td>${m.label}</td>`;
+    funds.forEach((f, i) => {
+      const v = values[i];
+      const rank = sorted.indexOf(v);
+      let cls = '';
+      if (rank === 0) cls = 'best';
+      else if (rank === sorted.length - 1) cls = 'worst';
+      html += `<td class="${cls}">${m.fmt(v)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  document.getElementById('matrix').innerHTML = html;
+}
+
+/* ============================================================
+   FARM LIST
+   ============================================================ */
+function renderFarmList() {
+  document.getElementById('flEyebrow').textContent = `Farms · ${activeFund}`;
+  document.getElementById('flTitle').textContent = `Farms in ${activeFund}`;
+  const farmIds = FARMS_BY_FUND[activeFund] || [];
+  const d = data[activeFund];
+  document.getElementById('flSub').textContent =
+    `${farmIds.length} ${farmIds.length === 1 ? 'farm' : 'farms'} with monthly tracking · ${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} fund acres`;
+
+  const grid = document.getElementById('farmGrid');
+  if (farmIds.length === 0) {
+    grid.innerHTML = `<div class="farm-row disabled" style="grid-column: 1/-1;">
+      <div class="farm-name" style="font-size: 14px;">No farm-level detail for ${activeFund}</div>
+      <div class="farm-sub" style="margin-top: 4px;">v1 has monthly tracking only for GLF5 in GLF OZ.</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = farmIds.map(id => {
+    const f = farms[id];
+    const overYtd = f.ytdActual > f.ytdAdjBudget;
+    const overFy = f.fyForecast > f.fyBudget;
+    return `
+      <div class="farm-row" onclick="openFarm('${id}')">
+        <div class="farm-tag">● Monthly tracking</div>
+        <div class="farm-head">
+          <div>
+            <div class="farm-name">${id}</div>
+            <div class="farm-sub">${f.fullName}</div>
+          </div>
+          <div class="farm-arrow">→</div>
+        </div>
+        <div class="farm-stats">
+          <div>
+            <div class="farm-stat-label">Acres</div>
+            <div class="farm-stat-val num">${f.acres.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+          </div>
+          <div>
+            <div class="farm-stat-label">YTD COGS</div>
+            <div class="farm-stat-val num ${overYtd ? 'bad' : 'good'}">$${f.ytdActual.toLocaleString()}</div>
+          </div>
+          <div>
+            <div class="farm-stat-label">FY forecast</div>
+            <div class="farm-stat-val num">$${f.fyForecast.toLocaleString()}</div>
+          </div>
+          <div>
+            <div class="farm-stat-label">FY vs budget</div>
+            <div class="farm-stat-val num ${overFy ? 'bad' : 'good'}">${overFy ? '+' : '−'}$${Math.abs(f.fyVariance).toLocaleString()}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   FARM DETAIL
+   ============================================================ */
+function renderFarmDetail() {
+  const f = farms[activeFarm];
+  document.getElementById('fdEyebrow').textContent = `Farm · ${f.fund}`;
+  document.getElementById('fdTitle').textContent = f.fullName;
+  document.getElementById('fdAcres').textContent = f.acres.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  document.getElementById('fdProgress').textContent = f.yearProgressPct + '%';
+  populateCategoryDropdown(f);
+  renderSpendBanner(f);
+  renderSpendChart();
+  renderCategoryTable(f);
+}
+
+function populateCategoryDropdown(f) {
+  const sel = document.getElementById('catSelect');
+  let opts = '<option value="ALL">All categories</option>';
+  f.categories.forEach((cat, idx) => {
+    opts += `<option value="${idx}">${cat.name}</option>`;
+  });
+  sel.innerHTML = opts;
+  sel.value = activeChartCategory;
+}
+function selectChartCategory(value) {
+  activeChartCategory = value;
+  const f = farms[activeFarm];
+  renderSpendBanner(f);
+  renderSpendChart();
+}
+
+function getActiveSpendView(f) {
+  if (activeChartCategory === 'ALL') {
+    const series = f.monthlyCum['ALL'];
+    return {
+      isCategory: false,
+      eyebrow: 'COGS / acre · YTD',
+      bigLabel: 'Cumulative COGS spend',
+      ytd: f.ytdActual,
+      ytdAdjBudget: f.ytdAdjBudget,
+      fyForecast: f.fyForecast,
+      fyBudget: f.fyBudget,
+      fyVariance: f.fyVariance,
+      fcstCum: series.fcst,
+      budgetCum: series.budget,
+    };
+  }
+  const cat = f.categories[parseInt(activeChartCategory)];
+  const series = f.monthlyCum[cat.name] || { fcst: [], budget: [] };
+  return {
+    isCategory: true,
+    catName: cat.name,
+    eyebrow: `${cat.name} / acre · YTD`,
+    bigLabel: `${cat.name} · cumulative`,
+    ytd: cat.ytd,
+    ytdAdjBudget: cat.ytdAdjBudget,
+    fyForecast: cat.fcst,
+    fyBudget: cat.budget,
+    fyVariance: cat.fcst - cat.budget,
+    fcstCum: series.fcst,
+    budgetCum: series.budget,
+  };
+}
+
+function renderSpendBanner(f) {
+  const v = getActiveSpendView(f);
+  document.getElementById('fdSpendEyebrow').textContent = v.eyebrow;
+  document.getElementById('fdBigLabel').textContent = v.bigLabel;
+  document.getElementById('fdBigNum').textContent = v.ytd.toLocaleString();
+  document.getElementById('fdFY').textContent = '$' + v.fyForecast.toLocaleString();
+  document.getElementById('fdRemaining').textContent = '$' + Math.max(v.fyForecast - v.ytd, 0).toLocaleString();
+
+  const ytdOver = v.ytd - v.ytdAdjBudget;
+  const fyOver = v.fyVariance;
+  const callout = document.getElementById('fdCallout');
+  const calloutText = document.getElementById('fdCalloutText');
+  const prefix = v.isCategory ? `${v.catName}: ` : '';
+  if (ytdOver > 0 && fyOver > 0) {
+    callout.className = 'spend-callout bad';
+    calloutText.textContent = `${prefix}YTD $${ytdOver} over status-adjusted budget · FY $${fyOver} over plan`;
+  } else if (ytdOver > 0) {
+    callout.className = 'spend-callout bad';
+    calloutText.textContent = `${prefix}YTD $${ytdOver} over status-adjusted budget · FY forecast on plan`;
+  } else if (fyOver > 0) {
+    callout.className = 'spend-callout bad';
+    calloutText.textContent = `${prefix}YTD spend on track · FY $${fyOver} over plan`;
+  } else {
+    callout.className = 'spend-callout good';
+    calloutText.textContent = `${prefix}YTD on track · FY forecast on or under plan`;
+  }
+  document.getElementById('chartFootnote').textContent = v.isCategory
+    ? `${v.catName} actuals & forecast`
+    : 'Actuals through Mar, forecast Apr–Dec';
+}
+
+function renderSpendChart() {
+  const f = farms[activeFarm];
+  if (!f) return;
+  const v = getActiveSpendView(f);
+  const W = 600, H = 220;
+  const margin = { top: 24, right: 78, bottom: 28, left: 8 };
+  const innerW = W - margin.left - margin.right;
+  const innerH = H - margin.top - margin.bottom;
+
+  const allVals = [...v.fcstCum, ...v.budgetCum];
+  const rawMax = Math.max(...allVals);
+  let maxY;
+  if (rawMax >= 5000) maxY = Math.ceil(rawMax / 1000) * 1000;
+  else if (rawMax >= 500) maxY = Math.ceil(rawMax / 100) * 100;
+  else if (rawMax >= 50) maxY = Math.ceil(rawMax / 50) * 50;
+  else maxY = Math.ceil(rawMax / 10) * 10;
+  if (maxY === 0) maxY = 10;
+
+  const xScale = i => margin.left + (i / (f.months.length - 1)) * innerW;
+  const yScale = val => margin.top + innerH * (1 - val / maxY);
+
+  const smoothPath = (arr) => {
+    if (arr.length < 2) return '';
+    let d = `M ${xScale(0)} ${yScale(arr[0])}`;
+    for (let i = 1; i < arr.length; i++) {
+      const x0 = xScale(i - 1), y0 = yScale(arr[i - 1]);
+      const x1 = xScale(i),     y1 = yScale(arr[i]);
+      const cx = (x0 + x1) / 2;
+      d += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      d += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    return d;
+  };
+
+  const buildBand = () => {
+    let forward = `M ${xScale(0)} ${yScale(v.fcstCum[0])}`;
+    for (let i = 1; i < v.fcstCum.length; i++) {
+      const x0 = xScale(i - 1), y0 = yScale(v.fcstCum[i - 1]);
+      const x1 = xScale(i),     y1 = yScale(v.fcstCum[i]);
+      const cx = (x0 + x1) / 2;
+      forward += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      forward += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    let back = '';
+    for (let i = v.budgetCum.length - 1; i > 0; i--) {
+      const x0 = xScale(i),     y0 = yScale(v.budgetCum[i]);
+      const x1 = xScale(i - 1), y1 = yScale(v.budgetCum[i - 1]);
+      const cx = (x0 + x1) / 2;
+      back += ` Q ${cx} ${y0}, ${cx} ${(y0 + y1) / 2}`;
+      back += ` Q ${cx} ${y1}, ${x1} ${y1}`;
+    }
+    back += ` L ${xScale(0)} ${yScale(v.budgetCum[0])} Z`;
+    return forward + back;
+  };
+
+  const accent = getCssVar('--accent');
+  const goodSoft = getCssVar('--good-soft');
+  const badSoft = getCssVar('--bad-soft');
+  const muted = getCssVar('--text-mute');
+  const hairline = getCssVar('--hairline');
+
+  const fyOver = v.fyForecast > v.fyBudget;
+  const bandFill = fyOver ? badSoft : goodSoft;
+
+  let svg = '';
+  svg += `<line x1="${margin.left}" y1="${yScale(0)}" x2="${margin.left + innerW}" y2="${yScale(0)}" stroke="${hairline}" stroke-width="0.5"/>`;
+  svg += `<path d="${buildBand()}" fill="${bandFill}"/>`;
+  svg += `<path d="${smoothPath(v.budgetCum)}" stroke="${muted}" stroke-width="1.5" stroke-dasharray="4 4" stroke-linecap="round" fill="none" opacity="0.7"/>`;
+  svg += `<path d="${smoothPath(v.fcstCum)}" stroke="${accent}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>`;
+
+  const fyVal = v.fcstCum[f.months.length - 1];
+  const fyBudgetVal = v.budgetCum[f.months.length - 1];
+  const fyY = yScale(fyVal);
+  const fyBudgetY = yScale(fyBudgetVal);
+  const fmtK = val => val >= 1000 ? '$' + (val/1000).toFixed(1) + 'k' : '$' + val.toLocaleString();
+  svg += `<text x="${W - margin.right + 8}" y="${fyY + 4}" font-family="-apple-system" font-size="10.5" font-weight="600" fill="${accent}">${fmtK(fyVal)}</text>`;
+  if (Math.abs(fyBudgetY - fyY) > 14) {
+    svg += `<text x="${W - margin.right + 8}" y="${fyBudgetY + 4}" font-family="-apple-system" font-size="10" fill="${muted}">${fmtK(fyBudgetVal)}</text>`;
+  }
+
+  const labelIdxs = [0, f.nowMonthIdx, 5, 8, 11];
+  f.months.forEach((m, i) => {
+    if (labelIdxs.includes(i)) {
+      const anchor = i === 0 ? 'start' : (i === f.months.length - 1 ? 'end' : 'middle');
+      const isNow = i === f.nowMonthIdx;
+      svg += `<text x="${xScale(i)}" y="${H - 8}" font-family="-apple-system" font-size="10" text-anchor="${anchor}" fill="${isNow ? accent : muted}" font-weight="${isNow ? 500 : 400}">${m}</text>`;
+    }
+  });
+
+  const dotX = xScale(f.nowMonthIdx);
+  const dotY = yScale(v.fcstCum[f.nowMonthIdx]);
+  svg += `<circle cx="${dotX}" cy="${dotY}" r="10" fill="${accent}" opacity="0.15"/>`;
+  svg += `<circle cx="${dotX}" cy="${dotY}" r="4.5" fill="${accent}" stroke="${getCssVar('--bg')}" stroke-width="2"/>`;
+  svg += `<text x="${dotX}" y="${dotY - 12}" font-family="-apple-system" font-size="10.5" font-weight="600" fill="${accent}" text-anchor="middle">$${v.fcstCum[f.nowMonthIdx].toLocaleString()}</text>`;
+
+  document.getElementById('spendChart').innerHTML = svg;
+}
+
+/* ============================================================
+   CATEGORY TABLE (farm detail)
+   ============================================================ */
+let expandedCatIdx = null;
+function renderCategoryTable(f) {
+  let html = '';
+  f.categories.forEach((cat, idx) => {
+    const ytdPct = cat.fcst > 0 ? Math.min(Math.round((cat.ytd / cat.fcst) * 100), 999) : 0;
+    const ytdOverAdj = cat.ytd - cat.ytdAdjBudget;
+    const fyVar = cat.budget - cat.fcst;
+    const fyOver  = fyVar < 0;
+    const fyUnder = fyVar > 0;
+    const ytdOver = ytdOverAdj > 0;
+    let fyVarClass = 'flat', fyVarSign = '$', fyVarVal = 0;
+    if (fyOver)        { fyVarClass = 'over';  fyVarSign = '+$'; fyVarVal = Math.abs(fyVar); }
+    else if (fyUnder)  { fyVarClass = 'under'; fyVarSign = '−$'; fyVarVal = Math.abs(fyVar); }
+    const isExpanded = expandedCatIdx === idx;
+    let statusClass = '';
+    if (fyOver) statusClass = 'bad';
+    else if (fyUnder && Math.abs(fyVar) > 5) statusClass = 'good';
+
+    html += `
+      <div class="cat-row ${isExpanded ? 'expanded' : ''}" onclick="toggleCat(${idx})">
+        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-name-block">
+          <div class="cat-name">${cat.name}</div>
+          <div class="cat-status">${cat.status}</div>
+        </div>
+        <div>
+          <div class="cat-status-pill ${statusClass}">${fyOver ? 'over' : (fyUnder && Math.abs(fyVar) > 5 ? 'under' : 'on plan')}</div>
+        </div>
+        <div>
+          <div class="cat-progress">
+            <div class="cat-progress-fill ${ytdOver ? 'over' : ''}" style="width: ${Math.min(ytdPct, 100)}%;"></div>
+          </div>
+          <div style="font-size: 10.5px; color: var(--text-mute); margin-top: 4px;">${ytdPct}% YTD</div>
+        </div>
+        <div class="cat-numbers">
+          <div class="cat-spent">$${cat.ytd.toLocaleString()}</div>
+          <div class="cat-of">of $${cat.fcst.toLocaleString()}</div>
+        </div>
+        <div class="cat-numbers">
+          <div class="cat-fyvar ${fyVarClass}">${fyVar === 0 ? '—' : fyVarSign + fyVarVal}</div>
+          <div class="cat-fyvar-label">FY vs B</div>
+        </div>
+      </div>`;
+    if (isExpanded) {
+      const itemsHtml = cat.items.map(it => {
+        const itVar = it.budget - it.fcst;
+        const itCls = itVar < 0 ? 'bad' : (itVar > 0 ? 'good' : 'dim');
+        const itSign = itVar < 0 ? '+$' : (itVar > 0 ? '−$' : '$');
+        const itVal = Math.abs(itVar);
+        const stat = it.icon === '✓' ? 'done' : (it.icon === '◐' ? 'wip' : '');
+        return `
+          <div class="c"><div class="li-status-dot ${stat}">${it.icon}</div></div>
+          <div class="c name">${it.name}</div>
+          <div class="c r">$${it.ytd}</div>
+          <div class="c r dim">$${it.fcst}</div>
+          <div class="c r dim">$${it.budget}</div>
+          <div class="c r ${itCls}">${itVar === 0 ? '—' : itSign + itVal}</div>`;
+      }).join('');
+      html += `
+        <div class="cat-items" onclick="event.stopPropagation()">
+          <div class="cat-items-grid">
+            <div class="h"></div>
+            <div class="h">Line item</div>
+            <div class="h r">YTD</div>
+            <div class="h r">Forecast</div>
+            <div class="h r">Budget</div>
+            <div class="h r">FY Var</div>
+            ${itemsHtml}
+          </div>
+        </div>`;
+    }
+  });
+  document.getElementById('catTable').innerHTML = html;
+}
+function toggleCat(idx) {
+  expandedCatIdx = expandedCatIdx === idx ? null : idx;
+  renderCategoryTable(farms[activeFarm]);
+}
+
+/* ============================================================
+   TOOLTIPS
+   ============================================================ */
+const tip = document.getElementById('tooltip');
+function showWfTip(e, el) {
+  const label = el.dataset.label;
+  const fcst = parseFloat(el.dataset.fcst);
+  const budget = parseFloat(el.dataset.budget);
+  tip.innerHTML = `
+    <div class="tt-title">${label}</div>
+    <div class="tt-row"><span>Forecast</span><span>${fmt$(fcst)}</span></div>
+    <div class="tt-row"><span>Budget</span><span>${fmt$(budget)}</span></div>`;
+  tip.classList.add('visible');
+  moveTip(e);
+}
+function showDonutTip(e, el) {
+  const cat = el.dataset.cat;
+  const fcst = parseFloat(el.dataset.fcst);
+  const budget = parseFloat(el.dataset.budget);
+  const v = budget - fcst;
+  const cls = v > 0 ? 'good' : (v < 0 ? 'bad' : '');
+  const sign = v > 0 ? '+$' : (v < 0 ? '−$' : '$');
+  tip.innerHTML = `
+    <div class="tt-title">${cat}</div>
+    <div class="tt-row"><span>Forecast</span><span>$${fcst}/ac</span></div>
+    <div class="tt-row"><span>Budget</span><span>$${budget}/ac</span></div>
+    <div class="tt-row"><span>Variance</span><span class="${cls}">${sign}${Math.abs(v)}</span></div>`;
+  tip.classList.add('visible');
+  moveTip(e);
+}
+function moveTip(e) {
+  tip.style.left = (e.clientX + 14) + 'px';
+  tip.style.top = (e.clientY + 14) + 'px';
+}
+function hideTip() { tip.classList.remove('visible'); }
+
+/* ============================================================
+   STICKY HEADER SHADOW
+   ============================================================ */
+function setupStickyShadows() {
+  const scroller = document.getElementById('contentScroll');
+  if (!scroller) return;
+  const observers = [];
+  // Use IntersectionObserver with a sentinel above each sticky header
+  // to toggle the .stuck class when its top edge crosses the scroll boundary.
+  const stickyHeaders = scroller.querySelectorAll('.section-head.sticky');
+  stickyHeaders.forEach(header => {
+    const sentinel = document.createElement('div');
+    sentinel.style.height = '1px';
+    sentinel.style.marginBottom = '-1px';
+    header.parentNode.insertBefore(sentinel, header);
+    const io = new IntersectionObserver(([entry]) => {
+      header.classList.toggle('stuck', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+    }, { root: scroller, threshold: [0, 1] });
+    io.observe(sentinel);
+    observers.push(io);
+  });
+}
+
+/* ============================================================
+   CMD-K PALETTE
+   ============================================================ */
+function openCmdk() {
+  const overlay = document.getElementById('cmdkOverlay');
+  overlay.classList.add('active');
+  const input = document.getElementById('cmdkInput');
+  input.value = '';
+  cmdkSelectedIdx = 0;
+  renderCmdkResults('');
+  setTimeout(() => input.focus(), 0);
+}
+function closeCmdk(e) {
+  if (e && e.target.closest('.cmdk-modal')) return;
+  document.getElementById('cmdkOverlay').classList.remove('active');
+}
+function buildCmdkItems() {
+  const items = [];
+  // Funds
+  FUND_LIST.forEach(name => {
+    const d = data[name];
+    items.push({
+      group: 'Funds',
+      icon: '◐',
+      title: name,
+      sub: `${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} acres · ${fmt$(d.ebitda.f)} EBITDA/ac`,
+      action: () => selectFund(name),
+      keywords: ['fund', name.toLowerCase()],
+    });
+  });
+  // Farms
+  Object.entries(farms).forEach(([id, f]) => {
+    items.push({
+      group: 'Farms',
+      icon: '◉',
+      title: id,
+      sub: `${f.fullName} · ${f.fund} · ${f.acres.toFixed(0)} acres`,
+      action: () => openFarm(id),
+      keywords: ['farm', id.toLowerCase(), f.fund.toLowerCase(), f.fullName.toLowerCase()],
+    });
+  });
+  // Views
+  items.push({
+    group: 'Views',
+    icon: '⊞',
+    title: 'Fund comparison',
+    sub: 'Heat-mapped key metrics across all funds',
+    action: () => goComparison(),
+    keywords: ['compare', 'comparison', 'matrix', 'all funds'],
+  });
+  FUND_LIST.forEach(name => {
+    if (FARMS_BY_FUND[name].length > 0) {
+      items.push({
+        group: 'Views',
+        icon: '⊟',
+        title: `Farms in ${name}`,
+        sub: 'See farm-level monthly tracking',
+        action: () => openFarmList(name),
+        keywords: ['farms', name.toLowerCase()],
+      });
+    }
+  });
+  // COGS categories — jump to fund + open drill
+  CAT_ORDER.forEach(cat => {
+    items.push({
+      group: 'COGS categories',
+      icon: '$',
+      title: cat,
+      sub: 'Open line items for current fund',
+      action: () => {
+        if (activeView !== 'fund') selectFund(activeFund);
+        setTimeout(() => openVarDrill(cat), 50);
+      },
+      keywords: ['cogs', 'category', cat.toLowerCase()],
+    });
+  });
+  // Actions
+  items.push({
+    group: 'Actions',
+    icon: '⇧',
+    title: 'Copy share link',
+    sub: 'Copy a URL that restores the current view',
+    action: () => copyShareLink(),
+    keywords: ['share', 'copy', 'link', 'url'],
+  });
+  items.push({
+    group: 'Actions',
+    icon: '⇩',
+    title: 'Export as PDF',
+    sub: 'Open browser print dialog',
+    action: () => window.print(),
+    keywords: ['export', 'pdf', 'print'],
+  });
+  items.push({
+    group: 'Actions',
+    icon: '◐',
+    title: 'Toggle appearance',
+    sub: 'Switch between light and dark mode',
+    action: () => toggleTheme(),
+    keywords: ['theme', 'dark', 'light', 'appearance'],
+  });
+  return items;
+}
+function renderCmdkResults(query) {
+  const all = buildCmdkItems();
+  const q = query.trim().toLowerCase();
+  let filtered;
+  if (q === '') {
+    filtered = all;
+  } else {
+    filtered = all.filter(it => {
+      const hay = (it.title + ' ' + it.sub + ' ' + it.keywords.join(' ')).toLowerCase();
+      return q.split(/\s+/).every(token => hay.includes(token));
+    });
+  }
+  cmdkResults = filtered;
+  cmdkSelectedIdx = Math.min(cmdkSelectedIdx, Math.max(0, filtered.length - 1));
+
+  const container = document.getElementById('cmdkResults');
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="cmdk-empty">No matches for "${query}"</div>`;
+    return;
+  }
+  let html = '';
+  let lastGroup = null;
+  filtered.forEach((it, i) => {
+    if (it.group !== lastGroup) {
+      html += `<div class="cmdk-group-label">${it.group}</div>`;
+      lastGroup = it.group;
+    }
+    const sel = i === cmdkSelectedIdx ? 'selected' : '';
+    html += `
+      <div class="cmdk-item ${sel}" data-idx="${i}" onclick="runCmdk(${i})">
+        <div class="cmdk-item-icon">${it.icon}</div>
+        <div class="cmdk-item-text">
+          <div class="cmdk-item-title">${it.title}</div>
+          <div class="cmdk-item-sub">${it.sub}</div>
+        </div>
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+function runCmdk(idx) {
+  const item = cmdkResults[idx];
+  if (!item) return;
+  document.getElementById('cmdkOverlay').classList.remove('active');
+  item.action();
+}
+document.addEventListener('keydown', (e) => {
+  const isCmdK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+  const isCmdShiftL = (e.metaKey || e.ctrlKey) && e.shiftKey && e.key.toLowerCase() === 'l';
+  const isCmdP = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'p';
+  const cmdkOpen = document.getElementById('cmdkOverlay').classList.contains('active');
+
+  if (isCmdK) {
+    e.preventDefault();
+    if (cmdkOpen) closeCmdk(); else openCmdk();
+    return;
+  }
+  if (isCmdShiftL && !cmdkOpen) {
+    e.preventDefault();
+    copyShareLink();
+    return;
+  }
+  // Cmd-P is handled natively by the browser for print — we let it through
+  // (no preventDefault) so the print stylesheet kicks in.
+
+  if (cmdkOpen) {
+    if (e.key === 'Escape') { closeCmdk(); return; }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      cmdkSelectedIdx = Math.min(cmdkSelectedIdx + 1, cmdkResults.length - 1);
+      renderCmdkResults(document.getElementById('cmdkInput').value);
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      cmdkSelectedIdx = Math.max(cmdkSelectedIdx - 1, 0);
+      renderCmdkResults(document.getElementById('cmdkInput').value);
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      runCmdk(cmdkSelectedIdx);
+    }
+  }
+});
+document.getElementById('cmdkInput').addEventListener('input', (e) => {
+  cmdkSelectedIdx = 0;
+  renderCmdkResults(e.target.value);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+function init() {
+  applyUrlState();
+  applyView();
+  setupStickyShadows();
+  // Update URL when state changes (handled inside applyView already)
+  window.addEventListener('hashchange', () => {
+    if (applyUrlState()) applyView();
+  });
+}
+init();
+window.addEventListener('resize', () => {
+  if (activeView === 'fund') {
+    renderWaterfall();
+    renderDonut();
+    renderFundTrend();
+  } else if (activeView === 'farmDetail') {
+    renderSpendChart();
+  }
+});
+</script>
+</body>
+</html>
