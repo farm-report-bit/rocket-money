@@ -1555,6 +1555,107 @@ html, body {
   }
 }
 
+/* ========== SCENARIO PANEL ========== */
+.scenario-panel {
+  padding: 10px 28px 14px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  border-top: 0.5px solid var(--hairline-soft);
+}
+.scenario-panel.modified {
+  background: rgba(0, 122, 255, 0.03);
+  border-top-color: var(--hairline);
+}
+[data-theme="dark"] .scenario-panel.modified {
+  background: rgba(10, 132, 255, 0.05);
+}
+.scenario-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 200px;
+}
+.scenario-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mute);
+  width: 32px;
+  flex-shrink: 0;
+  letter-spacing: 0.01em;
+}
+.scenario-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--segment-bg);
+  outline: none;
+  cursor: pointer;
+}
+.scenario-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  transition: transform 0.1s;
+}
+.scenario-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.scenario-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+.scenario-val {
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.scenario-panel:not(.modified) .scenario-val {
+  color: var(--text-mute);
+}
+.scenario-impact {
+  font-size: 10.5px;
+  color: var(--good);
+  min-width: 80px;
+  font-variant-numeric: tabular-nums;
+}
+.scenario-impact:empty { min-width: 0; }
+.scenario-reset {
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.12s;
+  flex-shrink: 0;
+}
+.scenario-reset:hover { background: var(--inset-2); }
+@media (max-width: 620px) {
+  .scenario-panel { padding: 10px 16px 12px; gap: 12px; }
+  .scenario-row { min-width: 0; }
+  .scenario-impact { display: none; }
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 800px) {
   .sidebar { width: 60px; padding: 12px 6px; }
@@ -1754,6 +1855,11 @@ html, body {
               <span>Copy share link</span>
               <kbd>⌘⇧L</kbd>
             </div>
+            <div class="tool-menu-item" onclick="exportCSV()">
+              <span>Export as CSV</span>
+              <kbd>⌘⇧E</kbd>
+            </div>
+            <div class="tool-menu-divider"></div>
             <div class="tool-menu-item" onclick="window.print()">
               <span>Export as PDF</span>
               <kbd>⌘P</kbd>
@@ -1798,6 +1904,24 @@ html, body {
         <div class="kpi-strip">
           <div style="font-size: 10.5px; color: var(--text-mute); text-align: right; margin-bottom: -4px; padding-right: 2px;">$ per acre · forecast vs budget</div>
           <div class="kpi-strip-inner" id="fvKpis"></div>
+        </div>
+
+        <div class="scenario-panel" id="scenarioPanel">
+          <div class="scenario-row">
+            <span class="scenario-label">Yield</span>
+            <input class="scenario-slider" id="yieldSlider" type="range" min="-30" max="30" step="5" value="0"
+                   oninput="setYieldMult(this.value)" />
+            <span class="scenario-val" id="yieldVal">Base</span>
+            <span class="scenario-impact" id="yieldImpact"></span>
+          </div>
+          <div class="scenario-row">
+            <span class="scenario-label">Price</span>
+            <input class="scenario-slider" id="priceSlider" type="range" min="-30" max="30" step="5" value="0"
+                   oninput="setPriceMult(this.value)" />
+            <span class="scenario-val" id="priceVal">Base</span>
+            <span class="scenario-impact" id="priceImpact"></span>
+          </div>
+          <button class="scenario-reset" id="scenarioReset" onclick="resetScenario()" style="display:none">Reset</button>
         </div>
 
         <div class="section">
@@ -2301,6 +2425,8 @@ let activeVarCategory = null;     // controls variance row drill + donut dim sta
 let activeFundChartCategory = 'ALL';   // fund-level YTD chart category filter
 let cmdkSelectedIdx = 0;
 let cmdkResults = [];
+let yieldMult = 1.0;
+let priceMult = 1.0;
 
 /* ============================================================
    HELPERS
@@ -2321,6 +2447,151 @@ function showToast(msg) {
   t.classList.add('visible');
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('visible'), 2000);
+}
+
+/* ============================================================
+   SCENARIO
+   ============================================================ */
+function scenarioData(fundName) {
+  const base = data[fundName];
+  const scenarioRevenue = base.revenue.f * yieldMult * priceMult;
+  const scenarioCogsPerLb = base.cogsPerLb.f / yieldMult;
+  const scenarioGrossProfit = scenarioRevenue - base.cogsTotal.f;
+  const scenarioFarmProfit = scenarioGrossProfit - base.farmOverhead.f;
+  const scenarioEbitda = scenarioFarmProfit - base.sharedOh.f - base.otherSGA.f;
+  const scenarioUnleveredCF = scenarioEbitda - base.mgmtFee.f - base.capex.f;
+  const scenarioFcf = scenarioUnleveredCF - base.interest.f - base.debt.f;
+  return {
+    ...base,
+    revenue:     { ...base.revenue,     f: scenarioRevenue },
+    cogsPerLb:   { ...base.cogsPerLb,   f: scenarioCogsPerLb },
+    grossProfit: { ...base.grossProfit, f: scenarioGrossProfit },
+    farmProfit:  { ...base.farmProfit,  f: scenarioFarmProfit },
+    ebitda:      { ...base.ebitda,      f: scenarioEbitda },
+    unleveredCF: { ...base.unleveredCF, f: scenarioUnleveredCF },
+    fcf:         { ...base.fcf,         f: scenarioFcf },
+  };
+}
+
+function setYieldMult(pct) {
+  yieldMult = 1 + parseInt(pct) / 100;
+  updateScenarioUI();
+  renderKpis();
+  renderWaterfall();
+}
+function setPriceMult(pct) {
+  priceMult = 1 + parseInt(pct) / 100;
+  updateScenarioUI();
+  renderKpis();
+  renderWaterfall();
+}
+function resetScenario() {
+  yieldMult = 1.0; priceMult = 1.0;
+  document.getElementById('yieldSlider').value = 0;
+  document.getElementById('priceSlider').value = 0;
+  updateScenarioUI();
+  renderKpis();
+  renderWaterfall();
+}
+function updateScenarioUI() {
+  const fmtPct = v => v === 1.0 ? 'Base' : (v > 1 ? '+' : '') + Math.round((v - 1) * 100) + '%';
+  document.getElementById('yieldVal').textContent = fmtPct(yieldMult);
+  document.getElementById('priceVal').textContent = fmtPct(priceMult);
+
+  // Show revenue impact of each slider independently
+  const baseRev = data[activeFund].revenue.f;
+  const yImpact = baseRev * (yieldMult - 1) * priceMult;
+  const pImpact = baseRev * yieldMult * (priceMult - 1);
+  const fmtImpact = v => {
+    if (Math.abs(v) < 1) return '';
+    return (v > 0 ? '+' : '−') + '$' + Math.round(Math.abs(v)).toLocaleString() + ' rev';
+  };
+  document.getElementById('yieldImpact').textContent = fmtImpact(yImpact);
+  document.getElementById('priceImpact').textContent = fmtImpact(pImpact);
+
+  const modified = yieldMult !== 1.0 || priceMult !== 1.0;
+  document.getElementById('scenarioReset').style.display = modified ? 'inline-flex' : 'none';
+  document.getElementById('scenarioPanel').classList.toggle('modified', modified);
+
+  // Update the KPI strip subtitle
+  const sub = document.querySelector('.kpi-strip > div:first-child');
+  if (sub) sub.textContent = modified
+    ? '$ per acre · scenario adjusted'
+    : '$ per acre · forecast vs budget';
+}
+
+function exportCSV() {
+  const view = activeView;
+  let rows = [], filename = '';
+
+  if (view === 'farmDetail' && activeFarm) {
+    const f = farms[activeFarm];
+    filename = `${activeFarm.replace(/\s+/g, '_')}_spend.csv`;
+    rows.push(['Farm', 'Fund', 'Acres', 'As Of']);
+    rows.push([f.fullName, f.fund, f.acres, f.asOf]);
+    rows.push([]);
+    rows.push(['Category', 'YTD Actual ($)', 'YTD Adj Budget ($)', 'YTD Variance ($)', 'FY Forecast ($)', 'FY Budget ($)', 'FY Variance ($)']);
+    f.categories.forEach(c => {
+      rows.push([
+        c.name,
+        c.ytd,
+        c.ytdAdjBudget,
+        c.ytd - c.ytdAdjBudget,
+        c.fcst,
+        c.budget,
+        c.budget - c.fcst,
+      ]);
+      if (c.items) {
+        c.items.forEach(it => {
+          rows.push([
+            '  ' + it.name,
+            it.ytd ?? '',
+            '',
+            '',
+            it.fcst,
+            it.budget,
+            it.budget - it.fcst,
+          ]);
+        });
+      }
+    });
+    rows.push([]);
+    rows.push(['', 'FY Forecast ($)', 'FY Budget ($)', 'Variance ($)']);
+    rows.push(['Total COGS', f.fyForecast, f.fyBudget, f.fyBudget - f.fyForecast]);
+
+  } else {
+    // Fund view or comparison — export all funds summary
+    const fundNames = view === 'comp' ? FUND_LIST : [activeFund];
+    filename = (view === 'comp' ? 'fund_comparison' : activeFund.replace(/\s+/g, '_') + '_summary') + '.csv';
+    rows.push(['Fund', 'Acres', 'Yield (lb/acre)', 'Price ($/lb)', 'Revenue ($k)', 'COGS Total ($k)', 'COGS/lb ($)', 'Gross Profit ($k)', 'EBITDA ($k)', 'FCF ($k)']);
+    fundNames.forEach(name => {
+      const d = data[name];
+      rows.push([name, d.acres, d.yield, d.price, d.revenue.f, d.cogsTotal.f, d.cogsPerLb.f, d.grossProfit.f, d.ebitda.f, d.fcf.f]);
+    });
+
+    if (fundNames.length === 1) {
+      const d = data[fundNames[0]];
+      rows.push([]);
+      rows.push(['Category', 'FY Forecast ($k/acre)', 'FY Budget ($k/acre)', 'YTD Actual ($k/acre)', 'YTD Adj Budget ($k/acre)']);
+      Object.entries(d.cogs).forEach(([cat, v]) => {
+        rows.push([cat, v.f, v.b, v.ytd ?? '', v.ytdAdjB ?? '']);
+      });
+    }
+  }
+
+  const csv = rows.map(r => r.map(cell => {
+    const s = String(cell ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  }).join(',')).join('\n');
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV downloaded');
 }
 
 /* ============================================================
@@ -2512,6 +2783,7 @@ function selectFund(name) {
   if (activeView !== 'fund' || activeFund !== name) pushHistory();
   activeView = 'fund';
   activeFund = name;
+  yieldMult = 1.0; priceMult = 1.0;
   closeMobileSidebar();
   applyView();
 }
@@ -2545,6 +2817,7 @@ function renderFundView() {
   document.getElementById('fvSub').textContent =
     `${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} acres`;
   renderKpis();
+  updateScenarioUI();
   renderWaterfall();
   renderDonut();
   renderVarList();
@@ -2785,7 +3058,7 @@ function renderFundTrend() {
 }
 
 function renderKpis() {
-  const d = data[activeFund];
+  const d = scenarioData(activeFund);
   const dRev = d.revenue.f - d.revenue.b;
   const dEbitda = d.ebitda.f - d.ebitda.b;
   const dCogs = -(d.cogsPerLb.f - d.cogsPerLb.b); // lower is better → invert
@@ -2825,7 +3098,7 @@ function renderKpis() {
    WATERFALL
    ============================================================ */
 function renderWaterfall() {
-  const d = data[activeFund];
+  const d = scenarioData(activeFund);
   const stages = [
     { key: 'rev',    label: 'Revenue',    type: 'total',    value: d.revenue.f,                 budget: d.revenue.b },
     { key: 'cogs',   label: 'COGS',       type: 'cost',     value: -d.cogsTotal.f,              budget: -d.cogsTotal.b },
@@ -3682,6 +3955,7 @@ document.addEventListener('keydown', (e) => {
     copyShareLink();
     return;
   }
+  if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'E') { e.preventDefault(); exportCSV(); }
   // Cmd-P is handled natively by the browser for print — we let it through
   // (no preventDefault) so the print stylesheet kicks in.
 
