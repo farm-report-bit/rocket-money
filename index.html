@@ -1869,7 +1869,7 @@ html, body {
                 <span class="spend-callout-dot"></span>
                 <span id="ftCalloutText"></span>
               </div>
-              <div class="fund-trend-note">April YTD and full-year endpoints are actuals · curve between is illustrative</div>
+              <div class="fund-trend-note">YTD and full-year endpoints are actuals · curve between is illustrative</div>
             </div>
             <div class="fund-trend-chart-wrap">
               <svg id="fundTrendChart" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet"></svg>
@@ -2684,7 +2684,7 @@ function renderFundView() {
 // and the December point is the real full-year forecast / budget. The month-to-month
 // shape *between* those anchors is illustrative (seasonal weights), since this
 // workbook does not carry per-fund monthly detail — only period snapshots.
-const NOW_MONTH_IDX = 3; // April (actuals booked through April 2026)
+const NOW_MONTH_IDX = 7; // April (actuals booked through April 2026)
 function fundCumulativeSeries(fundName, categoryName) {
   const d = data[fundName];
   // Category-specific seasonal weights (Jan..Dec). Used only to shape the curve
