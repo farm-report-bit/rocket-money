@@ -1777,7 +1777,7 @@ html, body {
         </div>
       </div>
       <div class="toolbar-right">
-        <span class="toolbar-meta">As of Apr 2026</span>
+        <span class="toolbar-meta">As of —</span>
         <span class="toolbar-live" id="liveStatus" title="Data source"></span>
 
         <button class="tool-btn" onclick="openCmdk()" title="Quick find (⌘K)">
@@ -1869,7 +1869,7 @@ html, body {
                 <span class="spend-callout-dot"></span>
                 <span id="ftCalloutText"></span>
               </div>
-              <div class="fund-trend-note">YTD and full-year endpoints are actuals · curve between is illustrative</div>
+              <div class="fund-trend-note" id="ftNote"></div>
             </div>
             <div class="fund-trend-chart-wrap">
               <svg id="fundTrendChart" viewBox="0 0 600 220" preserveAspectRatio="xMidYMid meet"></svg>
@@ -1879,7 +1879,7 @@ html, body {
                   <span class="chart-legend-item" style="color: var(--text-mute);"><span class="chart-legend-swatch dashed"></span>Budget</span>
                   <span class="chart-legend-item"><span class="chart-legend-swatch band" style="background: var(--bad-soft);"></span>Variance</span>
                 </div>
-                <span>Actuals through Apr, forecast May–Dec</span>
+                <span id="ftFootnote"></span>
               </div>
             </div>
           </div>
@@ -1976,7 +1976,7 @@ html, body {
               <div class="page-title" id="fdTitle">Gold Leaf Farm 5</div>
               <div class="detail-meta-row">
                 <div class="detail-meta-item"><strong id="fdAcres">446.07</strong> acres</div>
-                <div class="detail-meta-item"><span class="dot"></span>As of <strong>Mar-26</strong></div>
+                <div class="detail-meta-item"><span class="dot"></span>As of <strong id="fdAsOf">—</strong></div>
                 <div class="detail-meta-item"><span class="dot"></span><strong id="fdProgress">25%</strong> through year</div>
               </div>
             </div>
@@ -2010,7 +2010,7 @@ html, body {
                   <span class="chart-legend-item" style="color: var(--text-mute);"><span class="chart-legend-swatch dashed"></span>Budget</span>
                   <span class="chart-legend-item"><span class="chart-legend-swatch band" style="background: var(--bad-soft);"></span>Variance</span>
                 </div>
-                <span id="chartFootnote">Actuals through Mar, forecast Apr–Dec</span>
+                <span id="chartFootnote"></span>
               </div>
             </div>
           </div>
@@ -2679,12 +2679,75 @@ function renderFundView() {
    The source spreadsheet has only annual figures per fund. This generator
    produces a plausible cumulative shape that lands at the actual annual
    value at year-end. Replace with real monthly source data when available. */
-// Cumulative monthly series. Endpoints are real: the "now" point (April, index 3)
+// Cumulative monthly series. Endpoints are real: the "now" point (NOW_MONTH_IDX)
 // is anchored to the real YTD actual / YTD-adjusted budget pulled from NetSuite,
 // and the December point is the real full-year forecast / budget. The month-to-month
 // shape *between* those anchors is illustrative (seasonal weights), since this
 // workbook does not carry per-fund monthly detail — only period snapshots.
-const NOW_MONTH_IDX = 7; // April (actuals booked through April 2026)
+
+/* ---- Close calendar -------------------------------------------------------
+   The "as of" month is derived, not hardcoded. Rule: a month's books are closed
+   by the 10th of the following month, so the latest closed month is
+     · last month        — on or after the 10th
+     · two months back   — before the 10th
+   Everything downstream (anchor dot, x-axis labels, toolbar copy, footnotes)
+   reads NOW_MONTH_IDX, so this is the only place a month is decided. A live
+   payload's sourceMonth still overrides it — the sheet beats the calendar.
+   -------------------------------------------------------------------------- */
+const DASHBOARD_YEAR = 2026;  // fiscal year this workbook covers
+const CLOSE_DAY = 10;         // day of month by which the prior month is closed
+// Month (1-indexed) the baked-in ytd / ytdAdjB figures in `data` actually represent.
+// Bump this whenever the offline snapshot is refreshed. If the derived month runs
+// ahead of it and the live fetch fails, the dashboard says so rather than printing
+// a July label over April dollars.
+const SNAPSHOT_MONTH = 4;     // April
+
+function computeNowMonthIdx(today) {
+  const now = today instanceof Date ? today : new Date();
+  let year = now.getFullYear();
+  let idx  = now.getMonth() - 1;                    // last month, 0-indexed
+  if (now.getDate() < CLOSE_DAY) idx -= 1;          // pre-close: step back one more
+  while (idx < 0) { idx += 12; year -= 1; }         // roll the year boundary
+  if (year > DASHBOARD_YEAR) return 11;             // past the FY — pin to Dec
+  if (year < DASHBOARD_YEAR) return 0;              // before the FY — pin to Jan
+  return Math.min(idx, 11);
+}
+
+let NOW_MONTH_IDX = computeNowMonthIdx();
+
+// X-axis labels: always Jan / now / Dec, plus quarter marks that aren't crowding "now".
+function monthLabelIdxs(nowIdx, len) {
+  const last = len - 1;
+  const picks = [nowIdx];                                  // "now" always wins
+  if (Math.abs(nowIdx - 0) >= 2) picks.push(0);            // Jan, unless it crowds now
+  if (Math.abs(nowIdx - last) >= 2) picks.push(last);      // Dec, unless it crowds now
+  [3, 6, 9].forEach(i => {                                 // quarter marks that still fit
+    if (i > 0 && i < last && picks.every(p => Math.abs(p - i) >= 2)) picks.push(i);
+  });
+  return picks;
+}
+
+// "Actuals through Jul, forecast Aug–Dec" — built from an index, never typed out.
+function actualsFootnote(nowIdx) {
+  const m = nowIdx + 1;
+  return m < 12
+    ? 'Actuals through ' + MONTH_NAMES[m] + ', forecast ' + MONTH_NAMES[m + 1] + '–Dec'
+    : 'Actuals through Dec';
+}
+
+// Single place that writes every "as of <month>" string in the fund view.
+function setAsOfLabels(nowIdx) {
+  const m = nowIdx + 1;
+  const name = MONTH_NAMES[m] || '—';
+  document.querySelectorAll('.toolbar-meta').forEach(el => {
+    el.textContent = 'As of ' + name + ' ' + DASHBOARD_YEAR;
+  });
+  const note = document.getElementById('ftNote');
+  if (note) note.textContent =
+    name + ' YTD and full-year endpoints are actuals · curve between is illustrative';
+  const foot = document.getElementById('ftFootnote');
+  if (foot) foot.textContent = actualsFootnote(nowIdx);
+}
 function fundCumulativeSeries(fundName, categoryName) {
   const d = data[fundName];
   // Category-specific seasonal weights (Jan..Dec). Used only to shape the curve
@@ -2728,7 +2791,12 @@ function fundCumulativeSeries(fundName, categoryName) {
   // The shape's mass before/after "now" is rescaled so each segment hits its anchor.
   function buildCurve(shapeArr, ytdAnchor, fyAnchor) {
     const preMass  = shapeArr.slice(0, NOW_MONTH_IDX + 1).reduce((s,v)=>s+v, 0) || 1;
-    const postMass = shapeArr.slice(NOW_MONTH_IDX + 1).reduce((s,v)=>s+v, 0) || 1;
+    let postShape  = shapeArr.slice(NOW_MONTH_IDX + 1);
+    let postMass   = postShape.reduce((s,v)=>s+v, 0);
+    // Later in the year a category can have no remaining seasonal weight at all
+    // (Pollination after bloom, Fertilizer after the spring program). Spread the
+    // remainder evenly instead of dumping it into a single December step.
+    if (postMass === 0) { postShape = postShape.map(() => 1); postMass = postShape.length || 1; }
     const fyVal = fyAnchor;
     // If we have a real YTD anchor, use it; otherwise fall back to proportional.
     const ytdVal = (ytdAnchor === null || ytdAnchor === undefined)
@@ -2741,7 +2809,7 @@ function fundCumulativeSeries(fundName, categoryName) {
       if (i <= NOW_MONTH_IDX) {
         c += (shapeArr[i] / preMass) * ytdVal;
       } else {
-        c += (shapeArr[i] / postMass) * remainder;
+        c += (postShape[i - NOW_MONTH_IDX - 1] / postMass) * remainder;
       }
       cum.push(Math.round(c));
     }
@@ -2787,7 +2855,7 @@ function renderFundTrend() {
   const series = fundCumulativeSeries(activeFund, activeFundChartCategory);
   if (!series) return;
   const { fcstCum, budgetCum, fyForecast, fyBudget, ytdActual, ytdBudget } = series;
-  const nowMonthIdx = NOW_MONTH_IDX; // April — actuals booked through April 2026
+  const nowMonthIdx = NOW_MONTH_IDX; // derived from the close calendar / live payload
   const ytd = (ytdActual != null) ? Math.round(ytdActual) : fcstCum[nowMonthIdx];
   const fyVar = fyBudget - fyForecast;
 
@@ -2889,7 +2957,7 @@ function renderFundTrend() {
     svg += `<text x="${W - margin.right + 8}" y="${fyBudgetY + 4}" font-family="-apple-system" font-size="10" fill="${muted}">${fmtK(fyBudgetVal)}</text>`;
   }
 
-  const labelIdxs = [0, nowMonthIdx, 5, 8, 11];
+  const labelIdxs = monthLabelIdxs(nowMonthIdx, months.length);
   months.forEach((m, i) => {
     if (labelIdxs.includes(i)) {
       const anchor = i === 0 ? 'start' : (i === months.length - 1 ? 'end' : 'middle');
@@ -3316,6 +3384,8 @@ function renderFarmDetail() {
   document.getElementById('fdTitle').textContent = f.fullName;
   document.getElementById('fdAcres').textContent = f.acres.toLocaleString(undefined, { maximumFractionDigits: 2 });
   document.getElementById('fdProgress').textContent = f.yearProgressPct + '%';
+  const asOfEl = document.getElementById('fdAsOf');
+  if (asOfEl) asOfEl.textContent = f.asOf;
   populateCategoryDropdown(f);
   renderSpendBanner(f);
   renderSpendChart();
@@ -3399,7 +3469,7 @@ function renderSpendBanner(f) {
   }
   document.getElementById('chartFootnote').textContent = v.isCategory
     ? `${v.catName} actuals & forecast`
-    : 'Actuals through Mar, forecast Apr–Dec';
+    : actualsFootnote(f.nowMonthIdx);
 }
 
 function renderSpendChart() {
@@ -3482,7 +3552,7 @@ function renderSpendChart() {
     svg += `<text x="${W - margin.right + 8}" y="${fyBudgetY + 4}" font-family="-apple-system" font-size="10" fill="${muted}">${fmtK(fyBudgetVal)}</text>`;
   }
 
-  const labelIdxs = [0, f.nowMonthIdx, 5, 8, 11];
+  const labelIdxs = monthLabelIdxs(f.nowMonthIdx, f.months.length);
   f.months.forEach((m, i) => {
     if (labelIdxs.includes(i)) {
       const anchor = i === 0 ? 'start' : (i === f.months.length - 1 ? 'end' : 'middle');
@@ -3884,20 +3954,16 @@ function applyLiveStatus(payload) {
   el.title = 'Live data pulled from the source sheet at ' + d.toLocaleString();
 }
 
-// Reflect the data's "as of" month in the toolbar, driven by sourceMonth.
+// Reflect the payload's "as of" month everywhere — toolbar copy, chart footnote,
+// and (critically) the month the YTD curve is anchored to. This previously rewrote
+// only the labels, so a July payload still drew its anchor dot wherever the
+// hardcoded index happened to sit. The sheet overrides the close-calendar default.
 function applySourceMonth(payload) {
   if (!payload || !payload.sourceMonth) return;
-  const label = 'As of ' + (MONTH_NAMES[payload.sourceMonth] || '—') + ' 2026';
-  document.querySelectorAll('.toolbar-meta').forEach((el) => { el.textContent = label; });
-  // Fund-view chart footnote: actuals through <month>, forecast <next>–Dec
   const m = payload.sourceMonth;
-  if (m >= 1 && m < 12) {
-    const note = 'Actuals through ' + MONTH_NAMES[m] + ', forecast ' + MONTH_NAMES[m + 1] + '–Dec';
-    // (fund-view legend footnote is a plain span; update by content match)
-    document.querySelectorAll('.chart-legend span').forEach((el) => {
-      if (/^Actuals through .+, forecast .+–Dec$/.test(el.textContent)) el.textContent = note;
-    });
-  }
+  if (m < 1 || m > 12) return;
+  NOW_MONTH_IDX = m - 1;
+  setAsOfLabels(NOW_MONTH_IDX);
 }
 
 // Show reconciliation warnings rather than silently trusting the numbers.
@@ -4073,6 +4139,7 @@ function loadFarmLiveData(farm) {
    ============================================================ */
 function init() {
   applyUrlState();
+  setAsOfLabels(NOW_MONTH_IDX);
   applyView();
   setupStickyShadows();
   // Update URL when state changes (handled inside applyView already)
@@ -4084,7 +4151,16 @@ function init() {
 // then load live data in the background and re-render if it arrived.
 init();
 loadLiveData().then((live) => {
-  if (live) applyView(); // refresh the current view with the live numbers
+  if (live) {
+    applyView(); // refresh the current view with the live numbers
+  } else if (SNAPSHOT_MONTH !== NOW_MONTH_IDX + 1) {
+    // Offline / stale deployment: the labels are derived from today's date but the
+    // numbers are whatever was last baked in. Never let those silently disagree.
+    showDataWarnings({ warnings: [
+      'live data unavailable — showing the ' + MONTH_NAMES[SNAPSHOT_MONTH] +
+      ' snapshot while labels read ' + MONTH_NAMES[NOW_MONTH_IDX + 1]
+    ]});
+  }
 });
 // Farm-level live data (GLF5 for now; the same endpoint serves any farm via ?farm=).
 loadFarmLiveData('GLF5').then((live) => {
