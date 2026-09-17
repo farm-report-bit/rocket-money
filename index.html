@@ -1892,10 +1892,6 @@ html, body {
               <div class="section-sub" id="varSubtitle">Year-to-date actual vs budget pace · per acre</div>
             </div>
             <div class="var-controls">
-              <div class="segment" id="varBasisToggle">
-                <button class="segment-btn active" data-basis="ytd" onclick="setVarBasis('ytd', this)">YTD</button>
-                <button class="segment-btn" data-basis="fy" onclick="setVarBasis('fy', this)">Full year</button>
-              </div>
               <div class="segment" id="varToggle">
                 <button class="segment-btn active" data-mode="all" onclick="setVarMode('all', this)">All</button>
                 <button class="segment-btn" data-mode="good" onclick="setVarMode('good', this)">Favorable</button>
@@ -1904,6 +1900,9 @@ html, body {
             </div>
           </div>
           <div class="var-list" id="varList"></div>
+          <div style="padding: 10px 6px 2px; text-align: right;">
+            <span id="varBasisToggle" style="font-size: 11px; color: var(--text-mute); cursor: pointer; user-select: none;" onclick="toggleVarBasis()">Show YTD actuals</span>
+          </div>
           <div class="var-drill" id="varDrill">
             <div class="var-drill-head">
               <div class="var-drill-title" id="varDrillTitle"></div>
@@ -2413,7 +2412,7 @@ let activeFund = 'GLF LP';   // default landing fund
 let activeView = 'fund';
 let activeFarm = null;
 let varMode = 'all';
-let varBasis = 'ytd'; // 'ytd' = YTD actual vs YTD budget pace · 'fy' = full-year forecast vs budget
+let varBasis = 'fy'; // 'ytd' = YTD actual vs YTD budget pace · 'fy' = full-year forecast vs budget
 let activeChartCategory = 'ALL';
 let navHistory = [];
 let activeVarCategory = null;     // controls variance row drill + donut dim state
@@ -3300,11 +3299,11 @@ function renderVarList() {
   if (sub) sub.textContent = isYTD
     ? 'Year-to-date actual vs budget pace · per acre · favorable = under pace'
     : 'Full-year forecast vs budget · per acre · favorable = forecast under budget';
+  const tog = document.getElementById('varBasisToggle');
+  if (tog) tog.textContent = isYTD ? 'Show full year' : 'Show YTD actuals';
 }
-function setVarBasis(basis, btn) {
-  varBasis = basis;
-  document.querySelectorAll('#varBasisToggle .segment-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+function toggleVarBasis() {
+  varBasis = varBasis === 'fy' ? 'ytd' : 'fy';
   closeVarDrill();
   renderVarList();
 }
