@@ -1849,6 +1849,25 @@ html, body {
           <div class="kpi-strip-inner" id="fvKpis"></div>
         </div>
 
+        <!-- Scenario inputs -->
+        <div id="scenarioPanel" style="margin: 0 0 2px; padding: 10px 14px 12px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <span style="font-size: 11px; font-weight: 500; color: var(--text-mute); white-space: nowrap; letter-spacing: .02em;">SCENARIO</span>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);">
+            <span style="color: var(--text-mute);">Yield (lbs/ac)</span>
+            <input id="scYield" type="number" min="0" step="10"
+              style="width: 76px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--inset); color: var(--text); font-size: 12px; font-family: inherit;"
+              oninput="applyScenario()">
+          </label>
+          <label style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text);">
+            <span style="color: var(--text-mute);">Price ($/lb)</span>
+            <input id="scPrice" type="number" min="0" step="0.01"
+              style="width: 68px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--inset); color: var(--text); font-size: 12px; font-family: inherit;"
+              oninput="applyScenario()">
+          </label>
+          <button onclick="resetScenario()" style="font-size: 11px; color: var(--text-mute); background: none; border: none; cursor: pointer; padding: 2px 4px; text-decoration: underline;">Reset</button>
+          <span id="scRevenueTag" style="font-size: 11px; color: var(--text-mute); margin-left: auto;"></span>
+        </div>
+
         <div class="section">
           <div class="section-head sticky">
             <div>
@@ -2410,6 +2429,9 @@ const farms = {
    ============================================================ */
 let activeFund = 'GLF LP';   // default landing fund
 let activeView = 'fund';
+
+// Scenario overrides — null means "use base forecast"
+let scYield = null, scPrice = null;
 let activeFarm = null;
 let varMode = 'all';
 let varBasis = 'fy'; // 'ytd' = YTD actual vs YTD budget pace · 'fy' = full-year forecast vs budget
@@ -2704,8 +2726,10 @@ function selectFund(name) {
   if (activeView !== 'fund' || activeFund !== name) pushHistory();
   activeView = 'fund';
   activeFund = name;
+  scYield = null; scPrice = null; // reset scenario on fund switch
   closeMobileSidebar();
   applyView();
+  syncScenarioInputs();
 }
 function goComparison() {
   if (activeView !== 'comp') pushHistory();
@@ -2736,6 +2760,7 @@ function renderFundView() {
   document.getElementById('fvTitle').textContent = activeFund;
   document.getElementById('fvSub').textContent =
     `${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} acres`;
+  syncScenarioInputs();
   renderKpis();
   renderWaterfall();
   renderDonut();
@@ -3044,8 +3069,72 @@ function renderFundTrend() {
   document.getElementById('fundTrendChart').innerHTML = svg;
 }
 
-function renderKpis() {
+// Returns a copy of data[activeFund] with revenue (and cascaded P&L) adjusted
+// by the current scenario yield/price inputs. All other lines unchanged.
+function scenarioData() {
+  const base = data[activeFund];
+  if (scYield === null && scPrice === null) return base;
+  const d = base;
+  const y = scYield !== null ? scYield : d.yield;
+  const p = scPrice !== null ? scPrice : d.price;
+  const revF = Math.round(y * p);               // new revenue per acre
+  const delta = revF - d.revenue.f;             // change vs base forecast
+  const clone = JSON.parse(JSON.stringify(d));
+  clone.revenue.f    = revF;
+  clone.grossProfit.f  = d.grossProfit.f  + delta;
+  clone.farmProfit.f   = d.farmProfit.f   + delta;
+  clone.ebitda.f       = d.ebitda.f       + delta;
+  clone.unleveredCF.f  = d.unleveredCF.f  + delta;
+  clone.fcf.f          = d.fcf.f          + delta;
+  return clone;
+}
+
+function syncScenarioInputs() {
   const d = data[activeFund];
+  const yi = document.getElementById('scYield');
+  const pi = document.getElementById('scPrice');
+  if (!yi || !pi) return;
+  if (scYield === null) yi.value = d.yield ?? '';
+  if (scPrice === null) pi.value = d.price !== undefined ? d.price.toFixed(2) : '';
+}
+
+function applyScenario() {
+  const yi = document.getElementById('scYield');
+  const pi = document.getElementById('scPrice');
+  const d  = data[activeFund];
+  const yv = parseFloat(yi.value);
+  const pv = parseFloat(pi.value);
+  scYield = isNaN(yv) ? null : yv;
+  scPrice = isNaN(pv) ? null : pv;
+
+  // Show revenue impact tag
+  const tag = document.getElementById('scRevenueTag');
+  if (tag) {
+    const sd = scenarioData();
+    if (scYield !== null || scPrice !== null) {
+      const delta = sd.revenue.f - d.revenue.f;
+      const sign = delta >= 0 ? '+' : '−';
+      tag.textContent = `Revenue: $${sd.revenue.f.toLocaleString()} (${sign}$${Math.abs(delta).toLocaleString()})`;
+      tag.style.color = delta >= 0 ? 'var(--good)' : 'var(--bad)';
+    } else {
+      tag.textContent = '';
+    }
+  }
+  renderKpis();
+  renderWaterfall();
+}
+
+function resetScenario() {
+  scYield = null; scPrice = null;
+  syncScenarioInputs();
+  const tag = document.getElementById('scRevenueTag');
+  if (tag) tag.textContent = '';
+  renderKpis();
+  renderWaterfall();
+}
+
+function renderKpis() {
+  const d = scenarioData();
   const dRev = d.revenue.f - d.revenue.b;
   const dEbitda = d.ebitda.f - d.ebitda.b;
   const dCogs = -(d.cogsPerLb.f - d.cogsPerLb.b); // lower is better → invert
@@ -3085,7 +3174,7 @@ function renderKpis() {
    WATERFALL
    ============================================================ */
 function renderWaterfall() {
-  const d = data[activeFund];
+  const d = scenarioData();
   const stages = [
     { key: 'rev',    label: 'Revenue',    type: 'total',    value: d.revenue.f,                 budget: d.revenue.b },
     { key: 'cogs',   label: 'COGS',       type: 'cost',     value: -d.cogsTotal.f,              budget: -d.cogsTotal.b },
