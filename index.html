@@ -2334,7 +2334,7 @@ const detail = {
 const FARMS_BY_FUND = {
   'GLF LP': [],
   'GLF 26': [],
-  'GLF OZ': ['GLF5'],
+  'GLF OZ': ['GLF5','GLF6','GLF12','GLF17O','GLF17C','GLF23A','GLF23P','GLF17R'],
   'GLF AZ': [],
 };
 
@@ -2422,6 +2422,13 @@ const farms = {
         ] },
     ],
   },
+  'GLF6':   { fund: 'GLF OZ', fullName: 'GLF6',   acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF12':  { fund: 'GLF OZ', fullName: 'GLF12',  acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF17O': { fund: 'GLF OZ', fullName: 'GLF17O', acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF17C': { fund: 'GLF OZ', fullName: 'GLF17C', acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF23A': { fund: 'GLF OZ', fullName: 'GLF23A', acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF23P': { fund: 'GLF OZ', fullName: 'GLF23P', acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
+  'GLF17R': { fund: 'GLF OZ', fullName: 'GLF17R', acres: null, asOf: 'Aug-26', yearProgressPct: 67, stub: true },
 };
 
 /* ============================================================
@@ -3486,8 +3493,9 @@ function renderFarmList() {
   document.getElementById('flTitle').textContent = `Farms in ${activeFund}`;
   const farmIds = FARMS_BY_FUND[activeFund] || [];
   const d = data[activeFund];
+  const liveCount = farmIds.filter(id => !farms[id]?.stub).length;
   document.getElementById('flSub').textContent =
-    `${farmIds.length} ${farmIds.length === 1 ? 'farm' : 'farms'} with monthly tracking · ${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} fund acres`;
+    `${farmIds.length} farms · ${liveCount} with monthly tracking · ${d.acres.toLocaleString(undefined,{maximumFractionDigits:0})} fund acres`;
 
   const grid = document.getElementById('farmGrid');
   if (farmIds.length === 0) {
@@ -3499,6 +3507,18 @@ function renderFarmList() {
   }
   grid.innerHTML = farmIds.map(id => {
     const f = farms[id];
+    if (f.stub) {
+      return `
+        <div class="farm-row disabled" style="opacity: 0.55;">
+          <div class="farm-tag" style="color: var(--text-mute);">○ Detail coming soon</div>
+          <div class="farm-head">
+            <div>
+              <div class="farm-name">${id}</div>
+              <div class="farm-sub" style="color: var(--text-mute);">GLF OZ</div>
+            </div>
+          </div>
+        </div>`;
+    }
     const overYtd = f.ytdActual > f.ytdAdjBudget;
     const overFy = f.fyForecast > f.fyBudget;
     return `
@@ -3514,7 +3534,7 @@ function renderFarmList() {
         <div class="farm-stats">
           <div>
             <div class="farm-stat-label">Acres</div>
-            <div class="farm-stat-val num">${f.acres.toLocaleString(undefined, { maximumFractionDigits: 2 })}</div>
+            <div class="farm-stat-val num">${f.acres ? f.acres.toLocaleString(undefined, { maximumFractionDigits: 2 }) : '—'}</div>
           </div>
           <div>
             <div class="farm-stat-label">YTD COGS</div>
