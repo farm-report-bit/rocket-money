@@ -4138,8 +4138,26 @@ function showDataWarnings(payload) {
     const main = document.querySelector('.content') || document.body;
     main.insertBefore(bar, main.firstChild);
   }
-  bar.textContent = '⚠ Data check: ' + warns.join(' · ') +
-                    ' — figures may not reconcile; verify against the source sheet.';
+  bar.textContent = '⚠ ' + warns.join(' · ');
+}
+
+function showLoadingNotice(msg) {
+  let bar = document.getElementById('dataWarningBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'dataWarningBar';
+    const main = document.querySelector('.content') || document.body;
+    main.insertBefore(bar, main.firstChild);
+  }
+  bar.style.cssText =
+    'margin:0;padding:8px 28px;font-size:12px;background:var(--inset);' +
+    'color:var(--text-mute);border-bottom:1px solid var(--hairline);';
+  bar.textContent = msg;
+}
+
+function clearNotice() {
+  const bar = document.getElementById('dataWarningBar');
+  if (bar) bar.remove();
 }
 
 // Load via JSONP (<script> tag) rather than fetch(): Apps Script responses
@@ -4308,15 +4326,14 @@ function init() {
 // Render the baked-in snapshot immediately so the page is interactive at once,
 // then load live data in the background and re-render if it arrived.
 init();
+showLoadingNotice('Loading latest data — showing snapshot in the meantime…');
 loadLiveData().then((live) => {
   if (live) {
+    clearNotice();
     applyView(); // refresh the current view with the live numbers
-  } else if (SNAPSHOT_MONTH !== NOW_MONTH_IDX + 1) {
-    // Offline / stale deployment: the labels are derived from today's date but the
-    // numbers are whatever was last baked in. Never let those silently disagree.
+  } else {
     showDataWarnings({ warnings: [
-      'live data unavailable — showing the ' + MONTH_NAMES[SNAPSHOT_MONTH] +
-      ' snapshot while labels read ' + MONTH_NAMES[NOW_MONTH_IDX + 1]
+      'Live data still loading — showing latest snapshot'
     ]});
   }
 });
