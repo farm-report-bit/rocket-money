@@ -3056,18 +3056,14 @@ function renderFundTrend() {
   const callout = document.getElementById('ftCallout');
   const calloutText = document.getElementById('ftCalloutText');
   const prefix = activeFundChartCategory === 'ALL' ? '' : `${activeFundChartCategory}: `;
-  if (ytdOver > 0 && fyVar < 0) {
+  // FY only — the YTD-pace half was dropped (it depended on ytd/ytdAdjB lining up
+  // month-for-month, which the live feed doesn't guarantee).
+  if (fyVar < 0) {
     callout.className = 'fund-trend-callout bad';
-    calloutText.textContent = `${prefix}YTD $${ytdOver} over pace · FY $${Math.abs(fyVar)} over plan`;
-  } else if (ytdOver > 0) {
-    callout.className = 'fund-trend-callout bad';
-    calloutText.textContent = `${prefix}YTD $${ytdOver} over pace · FY forecast on plan`;
-  } else if (fyVar < 0) {
-    callout.className = 'fund-trend-callout bad';
-    calloutText.textContent = `${prefix}YTD on pace · FY $${Math.abs(fyVar)} over plan`;
+    calloutText.textContent = `${prefix}FY $${Math.abs(fyVar)} over plan`;
   } else {
     callout.className = 'fund-trend-callout good';
-    calloutText.textContent = `${prefix}YTD on pace · FY on or under plan`;
+    calloutText.textContent = `${prefix}FY forecast on plan`;
   }
 
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
