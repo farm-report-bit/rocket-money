@@ -1708,9 +1708,44 @@ html, body {
   /* Detail meta */
   .detail-meta-row { gap: 10px; font-size: 11px; }
 }
+
+/* ===== WHO'S VIEWING — identity sheet + toolbar chip ===== */
+.id-sheet{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.28);
+  -webkit-backdrop-filter:saturate(120%) blur(6px);backdrop-filter:saturate(120%) blur(6px);
+  align-items:center;justify-content:center;padding:24px}
+.id-sheet.show{display:flex}
+.id-card{background:var(--bg);border-radius:18px;box-shadow:var(--shadow-cmdk);
+  padding:26px 26px 22px;max-width:380px;width:100%}
+.id-card h2{font-size:20px;font-weight:600;letter-spacing:-.02em;color:var(--text)}
+.id-card p{font-size:13px;color:var(--text-mute);line-height:1.5;margin:8px 0 18px}
+.id-card select,.id-card input[type="text"]{font:inherit;font-size:15px;width:100%;
+  padding:10px 12px;border:1px solid var(--hairline);border-radius:10px;
+  background:var(--inset);color:var(--text);outline:none;-webkit-appearance:none;appearance:none}
+.id-card select:focus,.id-card input[type="text"]:focus{box-shadow:0 0 0 3px var(--accent-bg);border-color:var(--accent)}
+.id-card input[type="text"]{margin-top:10px}
+.id-card input[hidden]{display:none}
+.id-card button{font:inherit;font-size:15px;font-weight:500;width:100%;margin-top:18px;
+  padding:11px;border:none;border-radius:10px;cursor:pointer;background:var(--accent);color:#fff}
+.id-card button:disabled{background:var(--inset-2);color:var(--text-mute);cursor:default}
+.whoami{font-size:12px;color:var(--text-mute);white-space:nowrap;margin-right:8px}
+.whoami button{font:inherit;font-size:12px;color:var(--accent-text);background:none;border:none;cursor:pointer;padding:0 0 0 4px}
+.whoami button:hover{text-decoration:underline}
+@media (max-width:800px){.whoami{display:none}}
+@media print{.id-sheet,.whoami{display:none!important}}
 </style>
 </head>
 <body data-theme="light">
+
+<!-- WHO'S VIEWING -->
+<div class="id-sheet" id="idSheet" role="dialog" aria-modal="true" aria-labelledby="idTitle">
+  <div class="id-card">
+    <h2 id="idTitle">Gold Leaf · 2026 FvB</h2>
+    <p>Pick your name, you won't have to enter it again.</p>
+    <select id="idSelect" aria-label="Select your name"></select>
+    <input type="text" id="idOther" placeholder="Your name" hidden aria-label="Your name">
+    <button id="idSave" disabled>Continue</button>
+  </div>
+</div>
 
 <!-- TOOLTIP -->
 <div class="tooltip" id="tooltip"></div>
@@ -1777,6 +1812,7 @@ html, body {
         </div>
       </div>
       <div class="toolbar-right">
+        <span class="whoami" id="whoami"></span>
         <span class="toolbar-meta">As of —</span>
         <span class="toolbar-live" id="liveStatus" title="Data source"></span>
 
@@ -4350,6 +4386,71 @@ window.addEventListener('resize', () => {
     renderSpendChart();
   }
 });
+
+/* ============================================================
+   WHO'S VIEWING — asked once per browser (localStorage), logged
+   once per tab (sessionStorage) to the same Apps Script web app
+   via ?log=1&u=<name>&v=<view>. Not auth; fire-and-forget, so a
+   logging failure never blocks the dashboard.
+   ============================================================ */
+const VIEWER_KEY = 'glf-fvb-2026-viewer';
+const LOGGED_KEY = 'glf-fvb-2026-logged';
+const ROSTER = {
+  'AMs':    ['Bia', 'Jimmy Gill', 'Saskia', 'Tom Barr'],
+  'FMs':    ['Amalia', 'Armando', 'Dave', 'Gerardo', 'Oscar', 'Pablo'],
+  'Office': ['Carl', 'David', 'Jack', 'Jackie', 'Santiago', 'Vasu'],
+};
+function getViewer() { try { return localStorage.getItem(VIEWER_KEY) || ''; } catch (e) { return ''; } }
+function setViewer(n) { try { localStorage.setItem(VIEWER_KEY, n); } catch (e) {} paintViewer(); }
+function paintViewer() {
+  const el = document.getElementById('whoami'), v = getViewer();
+  el.innerHTML = v ? 'Viewing as ' + v.replace(/[<>&"]/g, '') + '<button type="button" id="notMe">Change</button>' : '';
+  const b = document.getElementById('notMe');
+  if (b) b.onclick = () => openIdSheet(true);
+}
+function fillIdSelect() {
+  document.getElementById('idSelect').innerHTML =
+    '<option value="" selected>Select your name</option>' +
+    Object.entries(ROSTER).map(([g, ns]) =>
+      '<optgroup label="' + g + '">' + ns.map(n => '<option>' + n + '</option>').join('') + '</optgroup>').join('') +
+    '<option value="__other">Someone else\u2026</option>';
+}
+function logView() {
+  const v = getViewer();
+  if (!v || LIVE_DATA_URL.indexOf('PASTE_') === 0) return;
+  try { if (sessionStorage.getItem(LOGGED_KEY)) return; } catch (e) {}
+  const sep = LIVE_DATA_URL.indexOf('?') >= 0 ? '&' : '?';
+  const view = (location.hash || '').replace(/^#/, '').slice(0, 120);
+  fetch(LIVE_DATA_URL + sep + 'log=1&u=' + encodeURIComponent(v) +
+        '&v=' + encodeURIComponent(view) + '&_=' + Date.now(),
+        { cache: 'no-store', mode: 'no-cors' }).catch(() => {});
+  try { sessionStorage.setItem(LOGGED_KEY, '1'); } catch (e) {}
+}
+function openIdSheet(force) {
+  const sheet = document.getElementById('idSheet'), sel = document.getElementById('idSelect'),
+        other = document.getElementById('idOther'), save = document.getElementById('idSave');
+  if (getViewer() && !force) return;
+  sel.value = ''; other.value = ''; other.hidden = true; save.disabled = true;
+  sheet.classList.add('show'); sel.focus();
+  const chosen = () => sel.value === '__other' ? other.value.trim() : sel.value;
+  const sync = () => {
+    other.hidden = sel.value !== '__other';
+    save.disabled = !chosen();
+    if (sel.value === '__other' && document.activeElement === sel) other.focus();
+  };
+  sel.onchange = sync; other.oninput = sync;
+  other.onkeydown = e => { if (e.key === 'Enter' && chosen()) save.click(); };
+  save.onclick = () => {
+    const name = chosen(); if (!name) return;
+    setViewer(name);
+    sheet.classList.remove('show');
+    try { sessionStorage.removeItem(LOGGED_KEY); } catch (e) {}  // new name = new visit
+    logView();
+  };
+}
+fillIdSelect();
+paintViewer();
+if (getViewer()) logView(); else openIdSheet(false);
 </script>
 </body>
 </html>
