@@ -4415,15 +4415,14 @@ function fillIdSelect() {
       '<optgroup label="' + g + '">' + ns.map(n => '<option>' + n + '</option>').join('') + '</optgroup>').join('') +
     '<option value="__other">Someone else\u2026</option>';
 }
+const LOG_URL = 'https://script.google.com/macros/s/AKfycbyBSego6DdN8GXBMOOdki62B89vd2yKv3JA9-NMk0AwMyCtv207O3dt62uhfdlD18LcBQ/exec';
 function logView() {
   const v = getViewer();
-  if (!v || LIVE_DATA_URL.indexOf('PASTE_') === 0) return;
+  if (!v || LOG_URL.indexOf('PASTE_') === 0) return;
   try { if (sessionStorage.getItem(LOGGED_KEY)) return; } catch (e) {}
-  const sep = LIVE_DATA_URL.indexOf('?') >= 0 ? '&' : '?';
   const view = (location.hash || '').replace(/^#/, '').slice(0, 120);
-  fetch(LIVE_DATA_URL + sep + 'log=1&u=' + encodeURIComponent(v) +
-        '&v=' + encodeURIComponent(view) + '&_=' + Date.now(),
-        { cache: 'no-store', mode: 'no-cors' }).catch(() => {});
+  fetch(LOG_URL + '?u=' + encodeURIComponent(v) + '&v=' + encodeURIComponent(view) +
+        '&d=FvB%202026&_=' + Date.now(), { cache: 'no-store', mode: 'no-cors' }).catch(() => {});
   try { sessionStorage.setItem(LOGGED_KEY, '1'); } catch (e) {}
 }
 function openIdSheet(force) {
