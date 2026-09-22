@@ -4389,8 +4389,8 @@ window.addEventListener('resize', () => {
 
 /* ============================================================
    WHO'S VIEWING — asked once per browser (localStorage), logged
-   once per tab (sessionStorage) to the same Apps Script web app
-   via ?log=1&u=<name>&v=<view>. Not auth; fire-and-forget, so a
+   once per tab (sessionStorage) to the Yield Master Apps Script
+   via ?log=1&u=<name>&d=rocket&v=<view> -> "Views - Rocket Money" tab. Not auth; fire-and-forget, so a
    logging failure never blocks the dashboard.
    ============================================================ */
 const VIEWER_KEY = 'glf-fvb-2026-viewer';
@@ -4415,14 +4415,14 @@ function fillIdSelect() {
       '<optgroup label="' + g + '">' + ns.map(n => '<option>' + n + '</option>').join('') + '</optgroup>').join('') +
     '<option value="__other">Someone else\u2026</option>';
 }
-const LOG_URL = 'https://script.google.com/macros/s/AKfycbyBSego6DdN8GXBMOOdki62B89vd2yKv3JA9-NMk0AwMyCtv207O3dt62uhfdlD18LcBQ/exec';
+const LOG_URL = 'https://script.google.com/macros/s/AKfycbzbw0AVIEqM_y2zRXyGf8mFuGi4KBM2HGw5gn7UAAFN7fM_046DzmpkByhG9jnqDGEB/exec';  // Yield Master script
 function logView() {
   const v = getViewer();
   if (!v || LOG_URL.indexOf('PASTE_') === 0) return;
   try { if (sessionStorage.getItem(LOGGED_KEY)) return; } catch (e) {}
   const view = (location.hash || '').replace(/^#/, '').slice(0, 120);
-  fetch(LOG_URL + '?u=' + encodeURIComponent(v) + '&v=' + encodeURIComponent(view) +
-        '&d=FvB%202026&_=' + Date.now(), { cache: 'no-store', mode: 'no-cors' }).catch(() => {});
+  fetch(LOG_URL + '?log=1&u=' + encodeURIComponent(v) + '&d=rocket&v=' + encodeURIComponent(view) +
+        '&_=' + Date.now(), { cache: 'no-store', mode: 'no-cors' }).catch(() => {});
   try { sessionStorage.setItem(LOGGED_KEY, '1'); } catch (e) {}
 }
 function openIdSheet(force) {
