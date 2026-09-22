@@ -549,7 +549,7 @@ html, body {
 }
 .kpi-strip-inner {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(5, 1fr);
   gap: 0;
   border-top: 0.5px solid var(--hairline);
   border-bottom: 0.5px solid var(--hairline);
@@ -915,6 +915,7 @@ html, body {
   display: none;
 }
 .var-drill.active { display: block; }
+.var-drill.inline { margin: 4px 0 10px; }
 .var-drill-head {
   display: flex;
   justify-content: space-between;
@@ -1709,6 +1710,17 @@ html, body {
   .detail-meta-row { gap: 10px; font-size: 11px; }
 }
 
+/* ===== NETSUITE LINKS ===== */
+.ns-link{color:var(--text-faint);text-decoration:none;font-size:11px;line-height:1;padding:0 2px;border-radius:4px}
+.ns-link:hover{color:var(--accent-text);background:var(--accent-bg)}
+.ns-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 0 0}
+.ns-bar:empty{display:none}
+.ns-bar .ns-lab{font-size:10.5px;font-weight:500;color:var(--text-mute);letter-spacing:.02em;margin-right:2px}
+.ns-chip{font-size:11.5px;font-weight:500;color:var(--accent-text);background:var(--accent-bg);
+  text-decoration:none;padding:4px 9px;border-radius:100px;white-space:nowrap}
+.ns-chip:hover{filter:brightness(.95)}
+@media print{.ns-link,.ns-bar{display:none!important}}
+
 /* ===== WHO'S VIEWING — identity sheet + toolbar chip ===== */
 .id-sheet{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.28);
   -webkit-backdrop-filter:saturate(120%) blur(6px);backdrop-filter:saturate(120%) blur(6px);
@@ -1883,6 +1895,7 @@ html, body {
         <div class="kpi-strip">
           <div style="font-size: 10.5px; color: var(--text-mute); text-align: right; margin-bottom: -4px; padding-right: 2px;">$ per acre · forecast vs budget</div>
           <div class="kpi-strip-inner" id="fvKpis"></div>
+          <div class="ns-bar" id="nsBar"></div>
         </div>
 
         <!-- Scenario inputs -->
@@ -1958,6 +1971,7 @@ html, body {
           <div style="padding: 10px 6px 2px; text-align: right;">
             <span id="varBasisToggle" style="font-size: 11px; color: var(--text-mute); cursor: pointer; user-select: none;" onclick="toggleVarBasis()">Show YTD actuals</span>
           </div>
+          <span id="varDrillHome" hidden></span>
           <div class="var-drill" id="varDrill">
             <div class="var-drill-head">
               <div class="var-drill-title" id="varDrillTitle"></div>
@@ -2085,6 +2099,49 @@ html, body {
 </div>
 
 <script>
+/* ============================================================
+   NETSUITE REPORT LINKS — edit here only.
+   Each entry is a saved-report id (the cr= number in the URL) or a full URL.
+   Opens in a new tab; people need a NetSuite login + access to the report.
+   - NS_REPORTS:    chips under the KPI strip. fund: omit = every fund,
+                    or list fund names to show only there.
+   - NS_KPI:        small ↗ next to a KPI label (label must match exactly).
+   - NS_CATEGORY:   small ↗ next to a COGS category in "Variance vs budget".
+   ============================================================ */
+const NS_ACCOUNT_URL = 'https://11587518.app.netsuite.com/app/reporting/reportrunner.nl?cr=';
+const NS_REPORTS = [
+  { label: 'COGS report', report: 331 },
+  // { label: 'P&L by fund', report: 332 },
+  // { label: 'GLF 26 COGS', report: 333, fund: ['GLF 26'] },
+];
+const NS_KPI = {
+  'Total COGS': 331,
+  'COGS / lb':  331,
+  // 'Revenue': 334,
+};
+const NS_CATEGORY = {
+  // Fertilizer: 335,
+  // Irrigation: 336,
+};
+function nsUrl(r) {
+  if (r == null || r === '') return null;
+  const u = /^https?:\/\//i.test(String(r)) ? String(r) : NS_ACCOUNT_URL + encodeURIComponent(r);
+  return /^https:\/\/[\w.-]+\.netsuite\.com\//i.test(u) ? u : null;   // NetSuite links only
+}
+function nsIcon(r, title) {
+  const u = nsUrl(r);
+  return u ? `<a class="ns-link" href="${u}" target="_blank" rel="noopener" title="${title || 'Open in NetSuite'}" onclick="event.stopPropagation()">↗</a>` : '';
+}
+function renderNsBar() {
+  const el = document.getElementById('nsBar');
+  if (!el) return;
+  const chips = NS_REPORTS
+    .filter(x => !x.fund || x.fund.includes(activeFund))
+    .map(x => { const u = nsUrl(x.report);
+      return u ? `<a class="ns-chip" href="${u}" target="_blank" rel="noopener">${x.label} ↗</a>` : ''; })
+    .join('');
+  el.innerHTML = chips ? '<span class="ns-lab">NETSUITE</span>' + chips : '';
+}
 /* ============================================================
    DATA
    ============================================================ */
@@ -3175,6 +3232,7 @@ function renderKpis() {
   const dEbitda = d.ebitda.f - d.ebitda.b;
   const dCogs = -(d.cogsPerLb.f - d.cogsPerLb.b); // lower is better → invert
   const dFcf = d.fcf.f - d.fcf.b;
+  const dCogsTot = d.cogsTotal.b - d.cogsTotal.f;   // under budget = good
 
   const pill = (val, isPerLb) => {
     if (val === 0) return `<div class="kpi-delta neutral">on plan</div>`;
@@ -3188,7 +3246,7 @@ function renderKpis() {
   const kpi = (label, value, delta, isPerLb, accentColor, valueColor) => {
     return `
       <div class="kpi" style="--kpi-accent: ${accentColor};">
-        <div class="kpi-label">${label}</div>
+        <div class="kpi-label">${label}${nsIcon(NS_KPI[label], label + ' in NetSuite')}</div>
         <div class="kpi-value num" style="color: ${valueColor || 'var(--text)'};">${value}</div>
         ${pill(delta, isPerLb)}
       </div>`;
@@ -3201,9 +3259,11 @@ function renderKpis() {
   document.getElementById('fvKpis').innerHTML = [
     kpi('Revenue',       fmt$(d.revenue.f),              dRev,    false, accent,                   null),
     kpi('EBITDA',        fmt$(d.ebitda.f),               dEbitda, false, ebitdaColor,              ebitdaColor),
+    kpi('Total COGS',    fmt$(d.cogsTotal.f),            dCogsTot, false, getCssVar('--cogs-1'),  null),
     kpi('COGS / lb',     '$' + d.cogsPerLb.f.toFixed(2), dCogs,  true,  getCssVar('--cogs-3'),    null),
     kpi('Free cash flow', fmt$(d.fcf.f),                 dFcf,    false, fcfColor,                 fcfColor),
   ].join('');
+  renderNsBar();
 }
 
 /* ============================================================
@@ -3407,9 +3467,9 @@ function renderVarList() {
       ? `$${it.ytd} spent vs $${it.ytdAdjB} budgeted to date`
       : `$${it.fcst} fcst vs $${it.budget} budget`;
     return `
-      <div class="var-row ${isActive ? 'active' : ''} ${isDim ? 'dim' : ''}" onclick="openVarDrill('${safeCat}')">
+      <div class="var-row ${isActive ? 'active' : ''} ${isDim ? 'dim' : ''}" data-cat="${it.label.replace(/"/g, '&quot;')}" onclick="openVarDrill('${safeCat}', true)">
         <div>
-          <div class="var-name">${it.label}</div>
+          <div class="var-name">${it.label}${nsIcon(NS_CATEGORY[it.label], it.label + ' in NetSuite')}</div>
           <div class="var-sub">${sub}</div>
         </div>
         <div class="var-bar-track">
@@ -3418,6 +3478,7 @@ function renderVarList() {
         <div class="var-val ${good ? 'good' : 'bad'}">${sign}$${Math.abs(it.variance)}</div>
       </div>`;
   }).join('');
+  parkVarDrill();   // pull the panel out before the list is rebuilt, or it's destroyed with it
   document.getElementById('varList').innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--text-mute);font-size:12px;">No items match this filter.</div>';
 
   const sub = document.getElementById('varSubtitle');
@@ -3426,6 +3487,22 @@ function renderVarList() {
     : 'Full-year forecast vs budget · per acre · favorable = forecast under budget';
   const tog = document.getElementById('varBasisToggle');
   if (tog) tog.textContent = isYTD ? 'Show full year' : 'Show YTD actuals';
+  placeVarDrill();
+}
+/* The line-item panel opens directly under the clicked category row, not at the
+   bottom of the section. It lives at #varDrillHome when closed. */
+function parkVarDrill() {
+  const drill = document.getElementById('varDrill'), home = document.getElementById('varDrillHome');
+  if (drill && home && home.nextElementSibling !== drill) home.after(drill);
+}
+function placeVarDrill() {
+  const drill = document.getElementById('varDrill');
+  if (!drill || !activeVarCategory || !drill.classList.contains('active')) return;
+  const row = [...document.querySelectorAll('#varList .var-row')]
+    .find(r => r.dataset.cat === activeVarCategory);
+  if (!row) return;
+  row.after(drill);
+  drill.classList.add('inline');
 }
 function toggleVarBasis() {
   varBasis = varBasis === 'fy' ? 'ytd' : 'fy';
@@ -3440,7 +3517,9 @@ function setVarMode(mode, btn) {
   renderVarList();
 }
 
-function openVarDrill(category) {
+function openVarDrill(category, fromRow) {
+  if (fromRow && activeVarCategory === category &&
+      document.getElementById('varDrill').classList.contains('active')) { closeVarDrill(); return; }
   const items = detail[category];
   if (!items) return;
   activeVarCategory = category;
@@ -3469,11 +3548,14 @@ function openVarDrill(category) {
   document.getElementById('varDrill').classList.add('active');
   renderVarList();
   renderDonut();
+  const dr = document.getElementById('varDrill');
+  if (dr && dr.scrollIntoView) dr.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
 }
 function closeVarDrill() {
   activeVarCategory = null;
   const el = document.getElementById('varDrill');
-  if (el) el.classList.remove('active');
+  if (el) el.classList.remove('active', 'inline');
+  parkVarDrill();
   if (activeView === 'fund') {
     renderVarList();
     renderDonut();
